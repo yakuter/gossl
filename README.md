@@ -20,3 +20,8 @@ go run main.go verify -cafile ca.pem cert.pem
 ```bash
 go run main.go verify -hostname 127.0.0.1 -cafile ca.pem cert.pem
 ```
+
+### TODO
+1. Prepare release with Goreleaser for Windows, MacOS, Linux Deb, Linux RPM environments.
+2. Implement this logger: https://github.com/binalyze/httpreq/blob/main/logger.go
+3. Add generate command for generating private key, root ca and x509 certificates
