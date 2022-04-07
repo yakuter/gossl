@@ -4,9 +4,10 @@ import (
 	"os"
 	"testing"
 
+	"github.com/yakuter/gossl/commands/verify"
+
 	"github.com/stretchr/testify/require"
 	"github.com/urfave/cli/v2"
-	"github.com/yakuter/gossl/commands/verify"
 )
 
 func TestVerify(t *testing.T) {
@@ -20,7 +21,7 @@ func TestVerify(t *testing.T) {
 	require.NoError(t, err)
 
 	var (
-		hostname     = "127.0.0.1"
+		dns          = "127.0.0.1"
 		caFilePath   = "../../testdata/ca-cert.pem"
 		certFilePath = "../../testdata/server-cert.pem"
 	)
@@ -29,14 +30,14 @@ func TestVerify(t *testing.T) {
 		name      string
 		cafile    string
 		certfile  string
-		hostname  string
+		dns       string
 		shouldErr bool
 	}{
 		{
 			name:      "valid cert and ca",
 			cafile:    "../../testdata/ca-cert.pem",
 			certfile:  "../../testdata/server-cert.pem",
-			hostname:  hostname,
+			dns:       dns,
 			shouldErr: false,
 		},
 		{
@@ -48,28 +49,28 @@ func TestVerify(t *testing.T) {
 			name:      "ca file error",
 			cafile:    "wrong-file",
 			certfile:  certFilePath,
-			hostname:  hostname,
+			dns:       dns,
 			shouldErr: true,
 		},
 		{
 			name:      "cert file error",
 			cafile:    caFilePath,
 			certfile:  "wrong-file",
-			hostname:  hostname,
+			dns:       dns,
 			shouldErr: true,
 		},
 		{
-			name:      "hostname error",
+			name:      "dns error",
 			cafile:    caFilePath,
 			certfile:  certFilePath,
-			hostname:  "wrong.hostname.com",
+			dns:       "wrong.dns.com",
 			shouldErr: true,
 		},
 	}
 
 	for _, tC := range testCases {
 		t.Run(tC.name, func(t *testing.T) {
-			testArgs := []string{execName, verify.CmdVerify, "-hostname", tC.hostname, "-cafile", tC.cafile, tC.certfile}
+			testArgs := []string{execName, verify.CmdVerify, "-dns", tC.dns, "-cafile", tC.cafile, tC.certfile}
 			if tC.shouldErr {
 				require.Error(t, app.Run(testArgs))
 			} else {
@@ -77,17 +78,4 @@ func TestVerify(t *testing.T) {
 			}
 		})
 	}
-}
-
-func testFileWithContent(t *testing.T, tempdir, content string) string {
-	file, err := os.CreateTemp(tempdir, "test-file-*")
-	require.NoError(t, err)
-
-	_, err = file.WriteString(content)
-	require.NoError(t, err)
-
-	err = file.Close()
-	require.NoError(t, err)
-
-	return file.Name()
 }

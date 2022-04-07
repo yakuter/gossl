@@ -19,7 +19,7 @@ go run main.go verify --help
 go run main.go verify --cafile ./testdata/ca-cert.pem ./testdata/server-cert.pem
 ```
 ```bash
-go run main.go verify --hostname 127.0.0.1 --cafile ./testdata/ca-cert.pem ./testdata/server-cert.pem
+go run main.go verify --dns 127.0.0.1 --cafile ./testdata/ca-cert.pem ./testdata/server-cert.pem
 ```
 
 ### key
@@ -29,6 +29,7 @@ Key command helps you to generate RSA private key with provided bit size.
 go run main.go key --help
 ```
 ```bash
+// Default output is os.Stdout
 go run main.go key 2048
 ```
 ```bash

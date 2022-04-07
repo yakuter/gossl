@@ -18,8 +18,8 @@ const (
 )
 
 const (
-	flagCAFile   = "cafile"
-	flagHostname = "hostname"
+	flagCAFile = "cafile"
+	flagDNS    = "dns"
 )
 
 func Command() *cli.Command {
@@ -42,8 +42,8 @@ func Flags() []cli.Flag {
 			Required: true,
 		},
 		&cli.StringFlag{
-			Name:     flagHostname,
-			Usage:    "Hostname (optional)",
+			Name:     flagDNS,
+			Usage:    "DNS name or IP (optional)",
 			Required: false,
 		},
 	}
@@ -100,9 +100,9 @@ func Action(c *cli.Context) error {
 		Intermediates: x509.NewCertPool(),
 	}
 
-	// Check and add hostname flag as DNSName
-	if c.IsSet(flagHostname) {
-		opts.DNSName = c.String(flagHostname)
+	// Check and add dns flag as DNSName
+	if c.IsSet(flagDNS) {
+		opts.DNSName = c.String(flagDNS)
 	}
 
 	// Verify certificate with verification options
