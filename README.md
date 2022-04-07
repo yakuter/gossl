@@ -9,6 +9,7 @@ help: Help command displays default help and existing commands
 go run main.go help
 ```
 
+
 ### verify
 You can verify x509 certificate with provided root CA. Both CA and certificate files need to be PEM encoded.
 
