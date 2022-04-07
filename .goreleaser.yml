@@ -1,0 +1,20 @@
+builds:
+- goos:
+    - linux
+    - darwin
+    - windows
+  goarch:
+    - amd64
+
+archives:
+- name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}'
+  format_overrides:
+    - goos: windows
+      format: zip
+checksum:
+  name_template: 'checksums.txt'
+
+nfpms:
+  - formats:
+      - deb
+      - rpm
