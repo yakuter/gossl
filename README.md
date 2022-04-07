@@ -1,6 +1,6 @@
 # gossl
 
-GoSSL is an SSL/TLS certificate tool written with Go and built with Love.
+GoSSL is an SSL/TLS certificate tool written with Go and built with ❤️
 
 ## Commands
 ### help
