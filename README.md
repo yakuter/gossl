@@ -22,6 +22,19 @@ go run main.go verify --cafile ./testdata/ca-cert.pem ./testdata/server-cert.pem
 go run main.go verify --hostname 127.0.0.1 --cafile ./testdata/ca-cert.pem ./testdata/server-cert.pem
 ```
 
+### key
+Key command helps you to generate RSA private key with provided bit size.
+
+```bash
+go run main.go key --help
+```
+```bash
+go run main.go key 2048
+```
+```bash
+go run main.go key -out private.key 2048
+```
+
 ### TODO
 1. Implement this logger: https://github.com/binalyze/httpreq/blob/main/logger.go
 2. Add generate command for generating private key, root ca and x509 certificates

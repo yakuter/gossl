@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/yakuter/gossl/commands/help"
+	"github.com/yakuter/gossl/commands/key"
 	"github.com/yakuter/gossl/commands/verify"
 
 	"github.com/urfave/cli/v2"
@@ -28,5 +29,6 @@ func Commands() []*cli.Command {
 	return []*cli.Command{
 		help.Command(),
 		verify.Command(),
+		key.Command(),
 	}
 }
