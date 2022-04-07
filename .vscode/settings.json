@@ -1,0 +1,7 @@
+{
+    "go.testFlags": [
+        "-count=1",
+        "-v"
+    ],
+    "go.coverOnSingleTest": true,
+}
