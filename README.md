@@ -1,6 +1,6 @@
 # gossl
 
-GoSSL is an SSL/TLS certificate tool written with Go and built with Love.
+GoSSL is an SSL/TLS certificate tool written with Go and built with ❤️
 
 ## Commands
 ### help
@@ -37,6 +37,5 @@ go run main.go key -out private.key 2048
 ```
 
 ### TODO
-1. Prepare release with Goreleaser for Windows, MacOS, Linux Deb, Linux RPM environments.
-2. Implement this logger: https://github.com/binalyze/httpreq/blob/main/logger.go
-3. Add generate command for generating private key, root ca and x509 certificates
+1. Implement this logger: https://github.com/binalyze/httpreq/blob/main/logger.go
+2. Add generate command for generating private key, root ca and x509 certificates
