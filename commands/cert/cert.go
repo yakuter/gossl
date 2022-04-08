@@ -75,6 +75,14 @@ func Flags() []cli.Flag {
 }
 
 func Action(c *cli.Context) error {
+
+	// Check if numbits argument is provided
+	if c.Args().Len() > 0 {
+		err := errors.New("cert command doesn't accept any arguments")
+		log.Printf("Unexpected argument %s error %v", c.Args().First(), err)
+		return err
+	}
+
 	questions := []string{
 		"Common Name - SAN (eg, FQDN or IP)* []",
 		"Country Name (2 letter code) [AU]",
@@ -89,11 +97,14 @@ func Action(c *cli.Context) error {
 	// Ask questions to user and get answers
 	answers, err := readInputs(questions)
 	if err != nil {
-		return fmt.Errorf("failed to read inputs %v", err)
+		log.Printf("failed to read inputs %v", err)
+		return err
 	}
 
 	if len(answers[0]) == 0 {
-		return errors.New("Common Name - SAN cannot be empty")
+		err := errors.New("Common Name - SAN cannot be empty")
+		log.Printf("%v", err)
+		return err
 	}
 
 	// Generate subject (pkix.Name) from answers
@@ -105,13 +116,15 @@ func Action(c *cli.Context) error {
 	// Get privatekey from file
 	privateKey, err := key(c.String(flagKey))
 	if err != nil {
-		return fmt.Errorf("Failed to get key from key file %s error: %v", c.String(flagKey), err)
+		log.Printf("Failed to get key from key file %s error: %v", c.String(flagKey), err)
+		return err
 	}
 
 	// Create x509 certificate
 	certBytes, err := x509.CreateCertificate(rand.Reader, t, t, &privateKey.PublicKey, privateKey)
 	if err != nil {
-		return fmt.Errorf("Failed to create certificate error: %v", err)
+		log.Printf("Failed to create certificate error: %v", err)
+		return err
 	}
 
 	// Encode certificate as PEM
@@ -121,7 +134,8 @@ func Action(c *cli.Context) error {
 		Bytes: certBytes,
 	})
 	if err != nil {
-		return fmt.Errorf("Failed to encode cert as pem error: %v", err)
+		log.Printf("Failed to encode cert as pem error: %v", err)
+		return err
 	}
 
 	// Set output
@@ -132,12 +146,13 @@ func Action(c *cli.Context) error {
 		outputFilePath := c.String(flagOut)
 		outputFile, err := os.Create(outputFilePath)
 		if err != nil {
-			return errors.Wrapf(err, "failed to create output file %q error", outputFilePath)
+			log.Printf("failed to create output file: %q error: %v", outputFilePath, err)
+			return err
 		}
 
 		defer func() {
 			if err := outputFile.Close(); err != nil {
-				log.Printf("failed to close output file %q error %v", outputFilePath, err)
+				log.Printf("failed to close output file: %q error: %v", outputFilePath, err)
 			}
 		}()
 
@@ -147,7 +162,8 @@ func Action(c *cli.Context) error {
 	// Write PEM encoded x509 certificate to output
 	_, err = output.WriteString(certPEM.String())
 	if err != nil {
-		return errors.Wrapf(err, "failed to write output error")
+		log.Printf("failed to write output error: %v", err)
+		return err
 	}
 
 	log.Printf("Certificate generated successfully")
@@ -160,13 +176,13 @@ func readInputs(questions []string) ([]string, error) {
 	for i := range questions {
 		fmt.Printf("%s: ", questions[i])
 		if ok := scanner.Scan(); !ok {
-			return nil, errors.Wrapf(errors.New("failed to scan"), "")
+			return nil, errors.New("failed to scan")
 		}
 		answers[i] = scanner.Text()
 	}
 
 	if scanner.Err() != nil {
-		fmt.Println("Error: ", scanner.Err())
+		log.Printf("Scanner error: %v", scanner.Err())
 	}
 
 	return answers, nil
@@ -210,12 +226,15 @@ func key(keyFilePath string) (*rsa.PrivateKey, error) {
 
 	keyBlock, _ := pem.Decode(keyFileContent)
 	if keyBlock == nil {
-		return nil, fmt.Errorf("invalid key file %s", keyFilePath)
+		err := fmt.Errorf("invalid key file %s", keyFilePath)
+		log.Printf("%v", err)
+		return nil, err
 	}
 
 	key, err := x509.ParsePKCS1PrivateKey(keyBlock.Bytes)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse key file as x509 PKCS1 %v", err)
+		log.Printf("Failed to parse key file as x509 PKCS1 form error: %v", err)
+		return nil, err
 	}
 
 	return key, nil

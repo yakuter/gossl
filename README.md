@@ -36,6 +36,30 @@ gossl key 2048
 gossl key -out private.key 2048
 ```
 
+### cert
+Cert command generates x509 certificate with provided private key.
+
+```bash
+gossl cert --help
+```
+```bash
+// CA Certificate
+gossl cert \
+    --key private.key \
+    --out ca.pem \
+    --days 365 \
+    --serial 12345 \
+    --isCA 
+```
+// Server Certificate
+```bash
+gossl cert \
+    --key private.key \
+    --out cert.pem \
+    --days 365 \
+    --serial 12345
+```
+
 ### TODO
 1. Implement this logger: https://github.com/binalyze/httpreq/blob/main/logger.go
 2. Add generate command for generating private key, root ca and x509 certificates
