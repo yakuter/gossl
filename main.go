@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
+	"github.com/yakuter/gossl/commands/cert"
 	"github.com/yakuter/gossl/commands/help"
 	"github.com/yakuter/gossl/commands/key"
 	"github.com/yakuter/gossl/commands/verify"
@@ -19,7 +19,6 @@ func main() {
 		Commands: Commands(),
 	}
 
-	fmt.Println(os.Args)
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)
 	}
@@ -30,5 +29,6 @@ func Commands() []*cli.Command {
 		help.Command(),
 		verify.Command(),
 		key.Command(),
+		cert.Command(),
 	}
 }
