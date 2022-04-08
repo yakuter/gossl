@@ -6,34 +6,34 @@ GoSSL is an SSL/TLS certificate tool written with Go and built with ❤️
 ### help
 help: Help command displays default help and existing commands
 ```bash
-go run main.go help
+gossl help
 ```
 
 ### verify
 You can verify x509 certificate with provided root CA. Both CA and certificate files need to be PEM encoded.
 
 ```bash
-go run main.go verify --help
+gossl verify --help
 ```
 ```bash
-go run main.go verify --cafile ./testdata/ca-cert.pem ./testdata/server-cert.pem
+gossl verify --cafile ./testdata/ca-cert.pem ./testdata/server-cert.pem
 ```
 ```bash
-go run main.go verify --dns 127.0.0.1 --cafile ./testdata/ca-cert.pem ./testdata/server-cert.pem
+gossl verify --dns 127.0.0.1 --cafile ./testdata/ca-cert.pem ./testdata/server-cert.pem
 ```
 
 ### key
 Key command helps you to generate RSA private key with provided bit size.
 
 ```bash
-go run main.go key --help
+gossl key --help
 ```
 ```bash
 // Default output is os.Stdout
-go run main.go key 2048
+gossl key 2048
 ```
 ```bash
-go run main.go key -out private.key 2048
+gossl key -out private.key 2048
 ```
 
 ### TODO
