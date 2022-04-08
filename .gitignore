@@ -1,3 +1,4 @@
 dist
 gossl
 *.pem
+*.key

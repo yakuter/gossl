@@ -18,8 +18,9 @@ const (
 )
 
 const (
-	flagCAFile = "cafile"
-	flagDNS    = "dns"
+	flagCAFile   = "cafile"
+	flagCertFile = "certfile"
+	flagDNS      = "dns"
 )
 
 func Command() *cli.Command {
@@ -42,6 +43,11 @@ func Flags() []cli.Flag {
 			Required: true,
 		},
 		&cli.StringFlag{
+			Name:     flagCertFile,
+			Usage:    "Cert file path (required)",
+			Required: true,
+		},
+		&cli.StringFlag{
 			Name:     flagDNS,
 			Usage:    "DNS name or IP (optional)",
 			Required: false,
@@ -52,12 +58,6 @@ func Flags() []cli.Flag {
 func Action(c *cli.Context) error {
 	log.Printf("Verify command args: %q\n", c.Args().Slice())
 
-	// Check if cert file argument is provided
-	if c.Args().Len() < 1 {
-		err := errors.New("cert file is not provided")
-		return errors.Wrap(err, "error")
-	}
-
 	// Read CA file
 	caFilePath := c.String(flagCAFile)
 	caFileBytes, err := os.ReadFile(caFilePath)
@@ -66,7 +66,7 @@ func Action(c *cli.Context) error {
 	}
 
 	// Read cert file
-	certFilePath := c.Args().First()
+	certFilePath := c.String(flagCertFile)
 	certFileBytes, err := os.ReadFile(certFilePath)
 	if err != nil {
 		return errors.Wrapf(err, "failed to read cert file %q content error", certFilePath)

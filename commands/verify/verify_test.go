@@ -70,7 +70,7 @@ func TestVerify(t *testing.T) {
 
 	for _, tC := range testCases {
 		t.Run(tC.name, func(t *testing.T) {
-			testArgs := []string{execName, verify.CmdVerify, "-dns", tC.dns, "-cafile", tC.cafile, tC.certfile}
+			testArgs := []string{execName, verify.CmdVerify, "-dns", tC.dns, "-cafile", tC.cafile, "-certfile", tC.certfile}
 			if tC.shouldErr {
 				require.Error(t, app.Run(testArgs))
 			} else {

@@ -49,12 +49,6 @@ func Flags() []cli.Flag {
 func Action(c *cli.Context) error {
 	log.Printf("Key command args: %q\n", c.Args().Slice())
 
-	// Check if numbits argument is provided
-	if c.Args().Len() < 1 {
-		err := errors.New("numbits is not provided")
-		return errors.Wrap(err, "error")
-	}
-
 	// Set numbits as int
 	numbitsArg := c.Args().First()
 	numbits, err := strconv.Atoi(numbitsArg)

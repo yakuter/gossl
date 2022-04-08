@@ -75,14 +75,6 @@ func Flags() []cli.Flag {
 }
 
 func Action(c *cli.Context) error {
-
-	// Check if numbits argument is provided
-	if c.Args().Len() > 0 {
-		err := errors.New("cert command doesn't accept any arguments")
-		log.Printf("Unexpected argument %s error %v", c.Args().First(), err)
-		return err
-	}
-
 	questions := []string{
 		"Common Name - SAN (eg, FQDN or IP)* []",
 		"Country Name (2 letter code) [AU]",
