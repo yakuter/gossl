@@ -8,6 +8,7 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"log"
 	"math/big"
@@ -15,16 +16,12 @@ import (
 	"os"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
 )
 
-// Remote commands
 const (
 	CmdCert = "cert"
-)
 
-const (
 	flagKey    = "key"
 	flagOut    = "out"
 	flagDays   = "days"
@@ -94,7 +91,7 @@ func Action(c *cli.Context) error {
 	}
 
 	if len(answers[0]) == 0 {
-		err := errors.New("Common Name - SAN cannot be empty")
+		err = errors.New("Common Name - SAN cannot be empty")
 		log.Printf("%v", err)
 		return err
 	}
@@ -143,7 +140,7 @@ func Action(c *cli.Context) error {
 		}
 
 		defer func() {
-			if err := outputFile.Close(); err != nil {
+			if err = outputFile.Close(); err != nil {
 				log.Printf("failed to close output file: %q error: %v", outputFilePath, err)
 			}
 		}()
@@ -158,7 +155,7 @@ func Action(c *cli.Context) error {
 		return err
 	}
 
-	log.Printf("Certificate generated successfully")
+	log.Printf("Certificate generated")
 	return nil
 }
 

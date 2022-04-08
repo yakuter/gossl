@@ -20,6 +20,9 @@ func TestVerify(t *testing.T) {
 	execName, err := os.Executable()
 	require.NoError(t, err)
 
+	emptyFile, err := os.CreateTemp(t.TempDir(), "empty-file-*")
+	require.NoError(t, err)
+
 	var (
 		dns          = "127.0.0.1"
 		caFilePath   = "../../testdata/ca-cert.pem"
@@ -48,6 +51,20 @@ func TestVerify(t *testing.T) {
 		{
 			name:      "ca file error",
 			cafile:    "wrong-file",
+			certfile:  certFilePath,
+			dns:       dns,
+			shouldErr: true,
+		},
+		{
+			name:      "empty cert file error",
+			cafile:    caFilePath,
+			certfile:  emptyFile.Name(),
+			dns:       dns,
+			shouldErr: true,
+		},
+		{
+			name:      "empty ca file error",
+			cafile:    emptyFile.Name(),
 			certfile:  certFilePath,
 			dns:       dns,
 			shouldErr: true,

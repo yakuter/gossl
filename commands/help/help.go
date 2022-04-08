@@ -4,7 +4,6 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-// Remote commands
 const (
 	CmdHelp = "help"
 )
@@ -19,12 +18,6 @@ func Command() *cli.Command {
 		SkipFlagParsing: true,
 		HideHelp:        true,
 		HideHelpCommand: true,
-	}
-}
-
-func Flags() []cli.Flag {
-	return []cli.Flag{
-		// ...
 	}
 }
 

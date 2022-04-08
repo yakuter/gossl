@@ -10,17 +10,12 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/pkg/errors"
-
 	"github.com/urfave/cli/v2"
 )
 
-// Remote commands
 const (
 	CmdKey = "key"
-)
 
-const (
 	flagOut = "out"
 )
 
@@ -47,13 +42,15 @@ func Flags() []cli.Flag {
 }
 
 func Action(c *cli.Context) error {
-	log.Printf("Key command args: %q\n", c.Args().Slice())
+	numbitsArg := c.Args().First()
+
+	log.Printf("Generating private key with number of bits %q", numbitsArg)
 
 	// Set numbits as int
-	numbitsArg := c.Args().First()
 	numbits, err := strconv.Atoi(numbitsArg)
 	if err != nil {
-		return errors.Wrapf(err, "failed to convert numbits %q to int error", numbitsArg)
+		log.Printf("Failed to convert numbits %q to int error: %v", numbitsArg, err)
+		return err
 	}
 
 	// Set output
@@ -64,12 +61,13 @@ func Action(c *cli.Context) error {
 		outputFilePath := c.String(flagOut)
 		outputFile, err := os.Create(outputFilePath)
 		if err != nil {
-			return errors.Wrapf(err, "failed to create output file %q error", outputFilePath)
+			log.Printf("Failed to create output file %q error: %v", outputFilePath, err)
+			return err
 		}
 
 		defer func() {
 			if err := outputFile.Close(); err != nil {
-				log.Printf("failed to close output file %q error %v", outputFilePath, err)
+				log.Printf("Failed to close output file %q error: %v", outputFilePath, err)
 			}
 		}()
 
@@ -79,7 +77,8 @@ func Action(c *cli.Context) error {
 	// Generate private key
 	privKey, err := rsa.GenerateKey(rand.Reader, numbits)
 	if err != nil {
-		return errors.Wrapf(err, "failed to generate rsa key error")
+		log.Printf("Failed to generate rsa key error: %v", err)
+		return err
 	}
 
 	// Encode private key as PEM format
@@ -89,16 +88,17 @@ func Action(c *cli.Context) error {
 		Bytes: x509.MarshalPKCS1PrivateKey(privKey),
 	})
 	if err != nil {
-		return errors.Wrapf(err, "failed to encode private key to pem error")
+		log.Printf("Failed to encode private key as PEM error: %v", err)
+		return err
 	}
 
 	// Write private key to output
 	_, err = output.WriteString(privKeyPEM.String())
 	if err != nil {
-		return errors.Wrapf(err, "failed to write output error")
+		log.Printf("Failed to write private key to output error: %v", err)
+		return err
 	}
 
 	log.Printf("Private key generated")
-
 	return nil
 }
