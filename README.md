@@ -40,8 +40,8 @@ Cert command generates x509 certificate with provided private key.
 ```bash
 ./gossl cert --help
 ```
+// Generate Root CA
 ```bash
-// CA Certificate
 ./gossl cert \
     --key private.key \
     --out ca.pem \
@@ -49,7 +49,7 @@ Cert command generates x509 certificate with provided private key.
     --serial 12345 \
     --isCA 
 ```
-// Server Certificate
+// Generate Certificate
 ```bash
 ./gossl cert \
     --key private.key \
