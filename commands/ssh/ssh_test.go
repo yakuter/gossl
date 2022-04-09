@@ -1,11 +1,11 @@
-package key_test
+package ssh_test
 
 import (
 	"os"
 	"path/filepath"
 	"testing"
 
-	"github.com/yakuter/gossl/commands/key"
+	"github.com/yakuter/gossl/commands/ssh"
 
 	"github.com/stretchr/testify/require"
 	"github.com/urfave/cli/v2"
@@ -14,7 +14,7 @@ import (
 func TestKey(t *testing.T) {
 	app := &cli.App{
 		Commands: []*cli.Command{
-			key.Command(),
+			ssh.Command(),
 		},
 	}
 
@@ -22,7 +22,7 @@ func TestKey(t *testing.T) {
 	require.NoError(t, err)
 
 	tempDir := t.TempDir()
-	outFilePath := filepath.Join(tempDir, "private.key")
+	outFilePath := filepath.Join(tempDir, "id_rsa")
 
 	testCases := []struct {
 		name      string
@@ -59,11 +59,12 @@ func TestKey(t *testing.T) {
 
 	for _, tC := range testCases {
 		t.Run(tC.name, func(t *testing.T) {
-			testArgs := []string{execName, key.CmdKey, "-out", tC.out, "-bits", tC.numbits}
+			testArgs := []string{execName, ssh.CmdSSH, "-out", tC.out, "-bits", tC.numbits}
 			if tC.shouldErr {
 				require.Error(t, app.Run(testArgs))
 			} else {
 				require.NoError(t, app.Run(testArgs))
+				require.FileExists(t, outFilePath+".pub")
 			}
 		})
 	}

@@ -29,8 +29,8 @@ Key command helps you to generate RSA private key with provided bit size.
 
 ```bash
 ./gossl key --help
-./gossl key 2048
-./gossl key -out private.key 2048
+./gossl key --bits 2048
+./gossl key --bits 2048 -out private.key
 ```
 
 ### cert
@@ -57,10 +57,20 @@ Cert command generates x509 certificate with provided private key.
     --serial 12345
 ```
 
+### ssh
+SSH command helps you to generate SSH Key Pair with provided bit size.
+
+```bash
+./gossl key --help
+./gossl key --bits 2048
+./gossl key --bits 2048 -out ./id_rsa
+// output will be written to ./id_rsa and ./id_rsa_pub files
+```
+
 ### TODO
-1. Implement this logger: https://github.com/binalyze/httpreq/blob/main/logger.go
-2. Add generate command for generating private key, root ca and x509 certificates
-3. Add test for cert
-4. Add generating SSH key pair
-5. Add cert template format read from yaml file
-6. Add verification of an CA and http endpoint
+1. Add generate command for generating private key, root ca and x509 certificates as bundle
+2. Add test for cert
+3. Add cert template format read from yaml file
+4. Add verification of a CA and http endpoint
+5. Add test for utils package
+6. Add test for help package

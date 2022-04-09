@@ -7,6 +7,7 @@ import (
 	"github.com/yakuter/gossl/commands/cert"
 	"github.com/yakuter/gossl/commands/help"
 	"github.com/yakuter/gossl/commands/key"
+	"github.com/yakuter/gossl/commands/ssh"
 	"github.com/yakuter/gossl/commands/verify"
 
 	"github.com/urfave/cli/v2"
@@ -30,5 +31,6 @@ func Commands() []*cli.Command {
 		verify.Command(),
 		key.Command(),
 		cert.Command(),
+		ssh.Command(),
 	}
 }

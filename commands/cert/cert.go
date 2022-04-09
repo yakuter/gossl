@@ -2,12 +2,9 @@ package cert
 
 import (
 	"bufio"
-	"bytes"
 	"crypto/rand"
-	"crypto/rsa"
 	"crypto/x509"
 	"crypto/x509/pkix"
-	"encoding/pem"
 	"errors"
 	"fmt"
 	"log"
@@ -15,6 +12,8 @@ import (
 	"net"
 	"os"
 	"time"
+
+	"github.com/yakuter/gossl/pkg/utils"
 
 	"github.com/urfave/cli/v2"
 )
@@ -49,19 +48,22 @@ func Flags() []cli.Flag {
 			Required: true,
 		},
 		&cli.StringFlag{
-			Name:     flagOut,
-			Usage:    "Output file name (optional)",
-			Required: false,
+			Name:        flagOut,
+			Usage:       "Output file name (optional)",
+			DefaultText: "eg, ./cert.pem",
+			Required:    false,
 		},
 		&cli.UintFlag{
-			Name:     flagDays,
-			Usage:    "Number of days a certificate is valid for",
-			Required: true,
+			Name:        flagDays,
+			Usage:       "Number of days a certificate is valid for",
+			DefaultText: "365",
+			Required:    true,
 		},
 		&cli.Uint64Flag{
-			Name:     flagSerial,
-			Usage:    "Serial number to use in certificate",
-			Required: false,
+			Name:        flagSerial,
+			Usage:       "Serial number to use in certificate",
+			DefaultText: "123456",
+			Required:    false,
 		},
 		&cli.BoolFlag{
 			Name:     flagIsCA,
@@ -103,55 +105,32 @@ func Action(c *cli.Context) error {
 	t := template(p, c.Uint(flagDays), c.Uint64(flagSerial), c.Bool(flagIsCA))
 
 	// Get privatekey from file
-	privateKey, err := key(c.String(flagKey))
+	privateKey, err := utils.PrivateKeyFromPEMFile(c.String(flagKey))
 	if err != nil {
 		log.Printf("Failed to get key from key file %s error: %v", c.String(flagKey), err)
 		return err
 	}
 
 	// Create x509 certificate
-	certBytes, err := x509.CreateCertificate(rand.Reader, t, t, &privateKey.PublicKey, privateKey)
+	certx509, err := x509.CreateCertificate(rand.Reader, t, t, &privateKey.PublicKey, privateKey)
 	if err != nil {
 		log.Printf("Failed to create certificate error: %v", err)
 		return err
 	}
 
-	// Encode certificate as PEM
-	certPEM := bytes.NewBuffer(nil)
-	err = pem.Encode(certPEM, &pem.Block{
-		Type:  "CERTIFICATE",
-		Bytes: certBytes,
-	})
-	if err != nil {
-		log.Printf("Failed to encode cert as pem error: %v", err)
-		return err
-	}
+	// Encode x509 certificate to PEM format
+	certBytes := utils.CertToPEM(certx509)
 
 	// Set output
-	var output *os.File = os.Stdout
-
-	// If output file is provided, then create it and set as output
+	output := os.Stdout
+	outputFilePath := output.Name()
 	if c.IsSet(flagOut) {
-		outputFilePath := c.String(flagOut)
-		outputFile, err := os.Create(outputFilePath)
-		if err != nil {
-			log.Printf("failed to create output file: %q error: %v", outputFilePath, err)
-			return err
-		}
-
-		defer func() {
-			if err = outputFile.Close(); err != nil {
-				log.Printf("failed to close output file: %q error: %v", outputFilePath, err)
-			}
-		}()
-
-		output = outputFile
+		outputFilePath = c.String(flagOut)
 	}
 
-	// Write PEM encoded x509 certificate to output
-	_, err = output.WriteString(certPEM.String())
-	if err != nil {
-		log.Printf("failed to write output error: %v", err)
+	// Write x509 certificate to file
+	if err = os.WriteFile(outputFilePath, certBytes, 0o600); err != nil {
+		log.Printf("Failed to write Public Key to file %s error: %v", outputFilePath, err)
 		return err
 	}
 
@@ -205,26 +184,4 @@ func template(subject pkix.Name, days uint, serial uint64, isCA bool) *x509.Cert
 		t.BasicConstraintsValid = true
 	}
 	return t
-}
-
-func key(keyFilePath string) (*rsa.PrivateKey, error) {
-	keyFileContent, err := os.ReadFile(keyFilePath)
-	if err != nil {
-		return nil, err
-	}
-
-	keyBlock, _ := pem.Decode(keyFileContent)
-	if keyBlock == nil {
-		err := fmt.Errorf("invalid key file %s", keyFilePath)
-		log.Printf("%v", err)
-		return nil, err
-	}
-
-	key, err := x509.ParsePKCS1PrivateKey(keyBlock.Bytes)
-	if err != nil {
-		log.Printf("Failed to parse key file as x509 PKCS1 form error: %v", err)
-		return nil, err
-	}
-
-	return key, nil
 }
