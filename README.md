@@ -69,9 +69,10 @@ SSH command helps you to generate SSH Key Pair with provided bit size.
 ```
 
 ### TODO
-1. Add generate command for generating private key, root ca and x509 certificates as bundle
+1. Add generate command for generating private key, root ca and x509 certificates in one command
 2. Add test for cert
 3. Add cert template format read from yaml file
 4. Add verification of a CA and http endpoint
 5. Add test for utils package
 6. Add test for help package
+7. Add ssh-copy-id feature to upload ssh key to remote server easily
