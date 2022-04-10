@@ -5,7 +5,7 @@ GoSSL is an SSL/TLS certificate tool written with Go and built with ❤️
 ## Features
 - Verify a server certificate with a root CA
 - Generate RSA key
-- Generate x509 RSA CA certificate
+- Generate x509 RSA root CA
 - Generate x509 RSA server certificate
 - Generate SSH key pair
 
