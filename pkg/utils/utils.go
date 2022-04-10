@@ -1,11 +1,14 @@
 package utils
 
 import (
+	"bufio"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
+	"errors"
 	"fmt"
+	"log"
 	"os"
 
 	"golang.org/x/crypto/ssh"
@@ -84,4 +87,22 @@ func PrivateKeyFromPEMFile(keyFilePath string) (*rsa.PrivateKey, error) {
 	}
 
 	return key, nil
+}
+
+func ReadInputs(questions []string) ([]string, error) {
+	answers := make([]string, len(questions))
+	scanner := bufio.NewScanner(os.Stdin)
+	for i := range questions {
+		fmt.Printf("%s: ", questions[i])
+		if ok := scanner.Scan(); !ok {
+			return nil, errors.New("failed to scan")
+		}
+		answers[i] = scanner.Text()
+	}
+
+	if scanner.Err() != nil {
+		log.Printf("Scanner error: %v", scanner.Err())
+	}
+
+	return answers, nil
 }

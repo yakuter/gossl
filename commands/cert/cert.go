@@ -1,12 +1,10 @@
 package cert
 
 import (
-	"bufio"
 	"crypto/rand"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"errors"
-	"fmt"
 	"log"
 	"math/big"
 	"net"
@@ -86,7 +84,7 @@ func Action(c *cli.Context) error {
 	}
 
 	// Ask questions to user and get answers
-	answers, err := readInputs(questions)
+	answers, err := utils.ReadInputs(questions)
 	if err != nil {
 		log.Printf("failed to read inputs %v", err)
 		return err
@@ -136,24 +134,6 @@ func Action(c *cli.Context) error {
 
 	log.Printf("Certificate generated")
 	return nil
-}
-
-func readInputs(questions []string) ([]string, error) {
-	answers := make([]string, len(questions))
-	scanner := bufio.NewScanner(os.Stdin)
-	for i := range questions {
-		fmt.Printf("%s: ", questions[i])
-		if ok := scanner.Scan(); !ok {
-			return nil, errors.New("failed to scan")
-		}
-		answers[i] = scanner.Text()
-	}
-
-	if scanner.Err() != nil {
-		log.Printf("Scanner error: %v", scanner.Err())
-	}
-
-	return answers, nil
 }
 
 func subject(answers []string) pkix.Name {
