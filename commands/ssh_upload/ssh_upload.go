@@ -39,7 +39,7 @@ func Flags() []cli.Flag {
 			Name:        flagPubkey,
 			Usage:       "Output file path",
 			Required:    false,
-			DefaultText: "eg, ./id_rsa.pub",
+			DefaultText: "eg, /home/user/.ssh/id_rsa.pub",
 		},
 		&cli.UintFlag{
 			Name:        flagPort,
@@ -52,14 +52,14 @@ func Flags() []cli.Flag {
 }
 
 func Action(c *cli.Context) error {
-	// Read public key to send remote SSH server
+	// Read public key from file
 	pubKey, err := os.ReadFile(c.String(flagPubkey))
 	if err != nil {
 		log.Printf("Failed to read public key error: %v", err)
 		return err
 	}
 
-	// Parser remote username and hostname/ip
+	// Parse remote username and hostname/ip
 	remote := c.Args().First()
 	user, host, found := strings.Cut(remote, "@")
 	if !found {
@@ -68,14 +68,14 @@ func Action(c *cli.Context) error {
 		return err
 	}
 
-	// Get Password from user
+	// Get password from user
 	answers, err := utils.ReadInputs([]string{"Password"})
 	if err != nil {
 		log.Printf("failed to read inputs %v", err)
 		return err
 	}
 
-	// Connect to remote SSH server
+	// Connect to remote SSH server with SFTP
 	client, err := connectSFTP(host, user, answers[0], int(c.Uint(flagPort)))
 	if err != nil {
 		log.Printf("Failed to connect SSH server error: %v", err)

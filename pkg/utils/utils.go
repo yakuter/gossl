@@ -16,13 +16,13 @@ import (
 
 // GeneratePublicKey take an rsa.PublicKey and return bytes
 // suitable for writing to .pub file in the format "ssh-rsa ..."
-func GeneratePublicKey(privatekey *rsa.PublicKey) ([]byte, error) {
-	publicRsaKey, err := ssh.NewPublicKey(privatekey)
+func GeneratePublicKey(rsaPubKey *rsa.PublicKey) ([]byte, error) {
+	sshPubKey, err := ssh.NewPublicKey(rsaPubKey)
 	if err != nil {
 		return nil, err
 	}
 
-	return ssh.MarshalAuthorizedKey(publicRsaKey), nil
+	return ssh.MarshalAuthorizedKey(sshPubKey), nil
 }
 
 // GeneratePrivateKey creates an RSA Private Key with provided bit size
