@@ -10,8 +10,8 @@ import (
 
 	"github.com/pkg/sftp"
 	"github.com/urfave/cli/v2"
-	"github.com/yakuter/gossl/pkg/utils"
 	"golang.org/x/crypto/ssh"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 const (
@@ -69,14 +69,15 @@ func Action(c *cli.Context) error {
 	}
 
 	// Get password from user
-	answers, err := utils.ReadInputs([]string{"Password"})
+	fmt.Printf("Password: ")
+	pwd, err := terminal.ReadPassword(int(os.Stdin.Fd()))
 	if err != nil {
 		log.Printf("failed to read inputs %v", err)
 		return err
 	}
 
 	// Connect to remote SSH server with SFTP
-	client, err := connectSFTP(host, user, answers[0], int(c.Uint(flagPort)))
+	client, err := connectSFTP(host, user, string(pwd), int(c.Uint(flagPort)))
 	if err != nil {
 		log.Printf("Failed to connect SSH server error: %v", err)
 		return err

@@ -8,6 +8,8 @@ require (
 	golang.org/x/crypto v0.0.0-20220408190544-5352b0902921
 )
 
+require golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1 // indirect
+
 require (
 	github.com/cpuguy83/go-md2man/v2 v2.0.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
