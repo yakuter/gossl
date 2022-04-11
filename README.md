@@ -80,9 +80,8 @@ GoSSL is an SSL/TLS certificate tool written with Go and built with ❤️
 
 ### TODO
 1. Add generate command for generating private key, root ca and x509 certificates in one command
-2. Add test for cert
-3. Add cert template format read from yaml file
-4. Add verification of a CA and http endpoint
-5. Add test for utils package
-6. Add test for help package
-7. Add test for ssh-copy
+2. Add cert template format read from yaml file
+3. Add verification of a CA and http endpoint
+4. Add test for utils package
+5. Add test for help package
+6. Add test for ssh-copy

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io"
 	"log"
 	"os"
 
@@ -18,7 +19,7 @@ func main() {
 	app := &cli.App{
 		Name:     "GoSSL",
 		Usage:    "Don't be afraid of SSL anymore",
-		Commands: Commands(),
+		Commands: Commands(os.Stdin),
 	}
 
 	if err := app.Run(os.Args); err != nil {
@@ -26,12 +27,12 @@ func main() {
 	}
 }
 
-func Commands() []*cli.Command {
+func Commands(reader io.Reader) []*cli.Command {
 	return []*cli.Command{
 		help.Command(),
 		verify.Command(),
 		key.Command(),
-		cert.Command(),
+		cert.Command(reader),
 		ssh.Command(),
 		ssh_copy.Command(),
 	}

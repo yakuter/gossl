@@ -88,21 +88,22 @@ func Action(c *cli.Context) error {
 		}
 	}()
 
+	// We expect working directory is SSH user's home directory
 	workdir, err := client.Getwd()
 	if err != nil {
 		log.Printf("Failed to get working directory error: %v", err)
 		return err
 	}
 
+	// Create .ssh and its parent folders if not exist
 	remoteDir := filepath.Join(workdir, ".ssh")
-
 	if err = client.MkdirAll(remoteDir); err != nil {
 		log.Printf("Failed to create remote dir %s error: %v", remoteDir, err)
 		return err
 	}
 
+	// Open or create authorized_keys to append public key
 	remotePath := filepath.Join(remoteDir, "authorized_keys")
-
 	file, err := client.OpenFile(remotePath, os.O_RDWR|os.O_APPEND|os.O_CREATE)
 	if err != nil {
 		log.Printf("Failed to open file authorized_keys error: %v", err)

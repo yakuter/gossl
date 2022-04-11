@@ -5,6 +5,7 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"errors"
+	"io"
 	"log"
 	"math/big"
 	"net"
@@ -26,11 +27,11 @@ const (
 	flagIsCA   = "isCA"
 )
 
-func Command() *cli.Command {
+func Command(reader io.Reader) *cli.Command {
 	return &cli.Command{
 		Name:        CmdCert,
 		HelpName:    CmdCert,
-		Action:      Action,
+		Action:      Action(reader),
 		ArgsUsage:   `[cert file path]`,
 		Usage:       `generates x509 certificate.`,
 		Description: `Generates x509 certificate with provided template information.`,
@@ -55,12 +56,14 @@ func Flags() []cli.Flag {
 			Name:        flagDays,
 			Usage:       "Number of days a certificate is valid for",
 			DefaultText: "365",
-			Required:    true,
+			Value:       365,
+			Required:    false,
 		},
 		&cli.Uint64Flag{
 			Name:        flagSerial,
 			Usage:       "Serial number to use in certificate",
 			DefaultText: "123456",
+			Value:       1,
 			Required:    false,
 		},
 		&cli.BoolFlag{
@@ -71,69 +74,71 @@ func Flags() []cli.Flag {
 	}
 }
 
-func Action(c *cli.Context) error {
-	questions := []string{
-		"Common Name - SAN (eg, FQDN or IP)* []",
-		"Country Name (2 letter code) [AU]",
-		"State or Province Name []",
-		"Locality Name (eg, city) []",
-		"Organization Name [eg, company]",
-		"Organizational Unit Name (eg, section) []",
-		"Street Addr []",
-		"Postal Code []",
+func Action(reader io.Reader) func(c *cli.Context) error {
+	return func(c *cli.Context) error {
+		questions := []string{
+			"Common Name - SAN (eg, FQDN or IP)* []",
+			"Country Name (2 letter code) [AU]",
+			"State or Province Name []",
+			"Locality Name (eg, city) []",
+			"Organization Name [eg, company]",
+			"Organizational Unit Name (eg, section) []",
+			"Street Addr []",
+			"Postal Code []",
+		}
+
+		// Ask questions to user and get answers
+		answers, err := utils.ReadInputs(questions, reader)
+		if err != nil {
+			log.Printf("failed to read inputs %v", err)
+			return err
+		}
+
+		if len(answers[0]) == 0 {
+			err = errors.New("Common Name - SAN cannot be empty")
+			log.Printf("%v", err)
+			return err
+		}
+
+		// Generate subject (pkix.Name) from answers
+		p := subject(answers)
+
+		// Generate template (x509 certificate)
+		t := template(p, c.Uint(flagDays), c.Uint64(flagSerial), c.Bool(flagIsCA))
+
+		// Get privatekey from file
+		privateKey, err := utils.PrivateKeyFromPEMFile(c.String(flagKey))
+		if err != nil {
+			log.Printf("Failed to get key from key file %s error: %v", c.String(flagKey), err)
+			return err
+		}
+
+		// Create x509 certificate
+		certx509, err := x509.CreateCertificate(rand.Reader, t, t, &privateKey.PublicKey, privateKey)
+		if err != nil {
+			log.Printf("Failed to create certificate error: %v", err)
+			return err
+		}
+
+		// Encode x509 certificate to PEM format
+		certBytes := utils.CertToPEM(certx509)
+
+		// Set output
+		output := os.Stdout
+		outputFilePath := output.Name()
+		if c.IsSet(flagOut) {
+			outputFilePath = c.String(flagOut)
+		}
+
+		// Write x509 certificate to file
+		if err = os.WriteFile(outputFilePath, certBytes, 0o600); err != nil {
+			log.Printf("Failed to write Public Key to file %s error: %v", outputFilePath, err)
+			return err
+		}
+
+		log.Printf("Certificate generated")
+		return nil
 	}
-
-	// Ask questions to user and get answers
-	answers, err := utils.ReadInputs(questions)
-	if err != nil {
-		log.Printf("failed to read inputs %v", err)
-		return err
-	}
-
-	if len(answers[0]) == 0 {
-		err = errors.New("Common Name - SAN cannot be empty")
-		log.Printf("%v", err)
-		return err
-	}
-
-	// Generate subject (pkix.Name) from answers
-	p := subject(answers)
-
-	// Generate template (x509 certificate)
-	t := template(p, c.Uint(flagDays), c.Uint64(flagSerial), c.Bool(flagIsCA))
-
-	// Get privatekey from file
-	privateKey, err := utils.PrivateKeyFromPEMFile(c.String(flagKey))
-	if err != nil {
-		log.Printf("Failed to get key from key file %s error: %v", c.String(flagKey), err)
-		return err
-	}
-
-	// Create x509 certificate
-	certx509, err := x509.CreateCertificate(rand.Reader, t, t, &privateKey.PublicKey, privateKey)
-	if err != nil {
-		log.Printf("Failed to create certificate error: %v", err)
-		return err
-	}
-
-	// Encode x509 certificate to PEM format
-	certBytes := utils.CertToPEM(certx509)
-
-	// Set output
-	output := os.Stdout
-	outputFilePath := output.Name()
-	if c.IsSet(flagOut) {
-		outputFilePath = c.String(flagOut)
-	}
-
-	// Write x509 certificate to file
-	if err = os.WriteFile(outputFilePath, certBytes, 0o600); err != nil {
-		log.Printf("Failed to write Public Key to file %s error: %v", outputFilePath, err)
-		return err
-	}
-
-	log.Printf("Certificate generated")
-	return nil
 }
 
 func subject(answers []string) pkix.Name {

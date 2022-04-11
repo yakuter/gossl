@@ -8,6 +8,7 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"os"
 
@@ -89,9 +90,9 @@ func PrivateKeyFromPEMFile(keyFilePath string) (*rsa.PrivateKey, error) {
 	return key, nil
 }
 
-func ReadInputs(questions []string) ([]string, error) {
+func ReadInputs(questions []string, reader io.Reader) ([]string, error) {
 	answers := make([]string, len(questions))
-	scanner := bufio.NewScanner(os.Stdin)
+	scanner := bufio.NewScanner(reader)
 	for i := range questions {
 		fmt.Printf("%s: ", questions[i])
 		if ok := scanner.Scan(); !ok {
