@@ -8,6 +8,7 @@ GoSSL is an SSL/TLS certificate tool written with Go and built with ❤️
 - Generate x509 RSA root CA
 - Generate x509 RSA server certificate
 - Generate SSH key pair
+- Upload SSH public key to remote SSH server
 
 ## Commands
 ### help
@@ -76,8 +77,6 @@ GoSSL is an SSL/TLS certificate tool written with Go and built with ❤️
 ./gossl ssh-upload --pubkey /home/user/.ssh/id_rsa.pub remoteUser@remoteIP
 // This command will ask for password to connect SSH server
 ```
-
-ssh-upload --pubkey /Users/yakuter/.ssh/id_rsa.pub root@178.18.195.42
 
 ### TODO
 1. Add generate command for generating private key, root ca and x509 certificates in one command
