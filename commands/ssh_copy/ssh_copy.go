@@ -1,4 +1,4 @@
-package ssh_upload
+package ssh_copy
 
 import (
 	"fmt"
@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	CmdSSHUpload = "ssh-upload"
+	CmdSSHCopy = "ssh-copy"
 
 	flagPubkey = "pubkey"
 	flagPort   = "port"
@@ -23,12 +23,12 @@ const (
 
 func Command() *cli.Command {
 	return &cli.Command{
-		Name:        CmdSSHUpload,
-		HelpName:    CmdSSHUpload,
+		Name:        CmdSSHCopy,
+		HelpName:    CmdSSHCopy,
 		Action:      Action,
 		ArgsUsage:   `[remote-user@remote-ip]`,
-		Usage:       `uploads SSH public key.`,
-		Description: `Uploads and appends SSH public key to authorized_keys in remote SSH server.`,
+		Usage:       `copy SSH public key to remote server.`,
+		Description: `Copy SSH public key to authorized_keys in remote SSH server.`,
 		Flags:       Flags(),
 	}
 }
