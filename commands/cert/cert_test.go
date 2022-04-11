@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/yakuter/gossl/commands/cert"
+	"github.com/yakuter/gossl/commands/key"
 
 	"github.com/stretchr/testify/require"
 	"github.com/urfave/cli/v2"
@@ -19,7 +20,11 @@ func TestCert(t *testing.T) {
 
 	tempDir := t.TempDir()
 	outFile := filepath.Join(tempDir, "test.cert")
-	testKey := "../../testdata/test-key.pem"
+	testKey := filepath.Join(tempDir, "test.key")
+
+	keyApp := &cli.App{Commands: []*cli.Command{key.Command()}}
+	err = keyApp.Run([]string{execName, key.CmdKey, "-out", testKey, "-bits", "2048"})
+	require.NoError(t, err)
 
 	testCases := []struct {
 		name      string
