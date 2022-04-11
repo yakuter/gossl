@@ -26,9 +26,9 @@ func Command() *cli.Command {
 		Name:        CmdSSHUpload,
 		HelpName:    CmdSSHUpload,
 		Action:      Action,
-		ArgsUsage:   ` `,
-		Usage:       `generates RSA SSH key pair.`,
-		Description: `Generates RSA SSH key pair private and public key with provided number of bits.`,
+		ArgsUsage:   `[remote-user@remote-ip]`,
+		Usage:       `uploads SSH public key.`,
+		Description: `Uploads and appends SSH public key to authorized_keys in remote SSH server.`,
 		Flags:       Flags(),
 	}
 }
