@@ -32,7 +32,8 @@ GoSSL is an SSL/TLS certificate tool written with Go and built with ❤️
 ```bash
 ./gossl key --help
 ./gossl key --bits 2048
-./gossl key --bits 2048 -out private.key
+./gossl key --bits 2048 --out private.key
+./gossl key --bits 2048 --out private.key --withpub
 ```
 
 ### cert
