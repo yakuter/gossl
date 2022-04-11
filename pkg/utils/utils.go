@@ -40,7 +40,7 @@ func GeneratePrivateKey(bitSize int) (*rsa.PrivateKey, error) {
 	return privateKey, nil
 }
 
-// PrivateKeyToPEM encodes Private Key from RSA to PEM format
+// PrivateKeyToPEM encodes Private Key to PEM format
 func PrivateKeyToPEM(privateKey *rsa.PrivateKey) []byte {
 	// Get ASN.1 DER format
 	privDER := x509.MarshalPKCS1PrivateKey(privateKey)
@@ -51,10 +51,21 @@ func PrivateKeyToPEM(privateKey *rsa.PrivateKey) []byte {
 		Bytes: privDER,
 	}
 
-	// Private key in PEM format
-	privatePEM := pem.EncodeToMemory(&privBlock)
+	return pem.EncodeToMemory(&privBlock)
+}
 
-	return privatePEM
+// PublicKeyToPEM encodes Public Key to PEM format
+func PublicKeyToPEM(publicKey *rsa.PublicKey) []byte {
+	// Get ASN.1 DER format
+	pubDER := x509.MarshalPKCS1PublicKey(publicKey)
+
+	// pem.Block
+	pubBlock := pem.Block{
+		Type:  "RSA PUBLIC KEY",
+		Bytes: pubDER,
+	}
+
+	return pem.EncodeToMemory(&pubBlock)
 }
 
 // CertToPEM encodes Certificate to PEM format

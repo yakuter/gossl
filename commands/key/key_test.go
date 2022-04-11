@@ -59,7 +59,7 @@ func TestKey(t *testing.T) {
 
 	for _, tC := range testCases {
 		t.Run(tC.name, func(t *testing.T) {
-			testArgs := []string{execName, key.CmdKey, "-out", tC.out, "-bits", tC.numbits}
+			testArgs := []string{execName, key.CmdKey, "-out", tC.out, "-bits", tC.numbits, "-withpub"}
 			if tC.shouldErr {
 				require.Error(t, app.Run(testArgs))
 			} else {
