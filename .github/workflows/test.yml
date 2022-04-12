@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         go-version: [1.18.x]
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/setup-go@v3
@@ -38,13 +38,9 @@ jobs:
         # In order:
         # * Module download cache
         # * Build cache (Linux)
-        # * Build cache (Mac)
-        # * Build cache (Windows)
         path: |
           ~/go/pkg/mod
           ~/.cache/go-build
-          ~/Library/Caches/go-build
-          ~\AppData\Local\go-build
         key: ${{ runner.os }}-go-${{ matrix.go-version }}-${{ hashFiles('**/go.sum') }}
         restore-keys: |
           ${{ runner.os }}-go-${{ matrix.go-version }}-
