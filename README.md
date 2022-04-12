@@ -37,7 +37,7 @@ GoSSL is an SSL/TLS certificate tool written with Go and built with ❤️
 ```
 
 ### cert
-`cert` command generates x509 certificate with provided private key.
+`cert` command generates root CA and x509 certificates with provided private key.
 
 ```bash
 ./gossl cert --help
@@ -61,7 +61,7 @@ GoSSL is an SSL/TLS certificate tool written with Go and built with ❤️
 ```
 
 ### ssh
-`ssh` command generates SSH Key Pair with provided bit size just like `ssh-keygen` tool.
+`ssh` command generates SSH key pair with provided bit size just like `ssh-keygen` tool. These key pairs are used for automating logins, single sign-on, and for authenticating hosts.
 
 ```bash
 ./gossl key --help
@@ -71,7 +71,7 @@ GoSSL is an SSL/TLS certificate tool written with Go and built with ❤️
 ```
 
 ### ssh-copy
-`ssh-copy` connects remote SSH server and appends provided public key (eg, id_rsa.pub) to `authorized_keys` file just like `ssh-copy-id` tool.
+`ssh-copy` connects remote SSH server, creates `/home/user/.ssh` directory and `authorized_keys` file in it and appends provided public key (eg, id_rsa.pub) to `authorized_keys` file just like `ssh-copy-id` tool.
 
 ```bash
 ./gossl ssh-copy --help
@@ -85,3 +85,4 @@ GoSSL is an SSL/TLS certificate tool written with Go and built with ❤️
 3. Add verification of a CA and http endpoint
 4. Add test for utils package
 5. Add test for help package
+6. Add certificate converter command like DER to PEM etc.
