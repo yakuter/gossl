@@ -5,7 +5,8 @@
 <img src="https://img.shields.io/github/downloads/yakuter/gossl/total" alt="Total Downloads">
 <img src="https://img.shields.io/codecov/c/github/yakuter/gossl/main" alt="Codecov branch">
 <img src="https://img.shields.io/github/go-mod/go-version/yakuter/gossl" alt="Go Version">
-<a href="https://pkg.go.dev/github.com/yakuter/gossl"><img src="https://pkg.go.dev/badge/github.com/yakuter/gossl.svg" alt="Go Version"></a>
+<a href="https://pkg.go.dev/github.com/yakuter/gossl"><img src="https://pkg.go.dev/badge/github.com/yakuter/gossl.svg" alt="Go Version"></a><br>
+<em>Gopher design by <a href="https://twitter.com/tgybalci">Tugay BALCI</a></em>
 </p>
 
 # GoSSL
