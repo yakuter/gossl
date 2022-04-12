@@ -28,9 +28,5 @@ func Action(c *cli.Context) error {
 	} else {
 		err = cli.ShowCommandHelp(c, c.Args().First())
 	}
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }

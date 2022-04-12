@@ -101,5 +101,5 @@ Generate Certificate
 2. Add cert template format read from yaml file
 3. Add verification of a CA and http endpoint
 4. Add test for utils package
-5. Add test for help package
-6. Add certificate converter command like DER to PEM etc.
+5. Add certificate converter command like DER to PEM etc.
+6. Add Homebrew formula for MacOS (help wanted)
