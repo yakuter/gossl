@@ -35,7 +35,7 @@ func TestPrivateKeyToPEM(t *testing.T) {
 
 	pem := utils.PrivateKeyToPEM(privateKey)
 	require.NotNil(t, pem)
-	require.True(t, strings.HasPrefix(string(pem), "RSA PRIVATE KEY"))
+	require.True(t, strings.Contains(string(pem), "RSA PRIVATE KEY"))
 }
 
 func TestPublicKeyToPEM(t *testing.T) {
