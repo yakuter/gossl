@@ -34,6 +34,6 @@ func Commands(reader io.Reader) []*cli.Command {
 		key.Command(),
 		cert.Command(reader),
 		ssh.Command(),
-		ssh_copy.Command(),
+		ssh_copy.Command(ssh_copy.StdinPasswordReader{}),
 	}
 }
