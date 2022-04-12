@@ -1,12 +1,15 @@
-# gossl
+<p align="center"><img src="https://www.yakuter.com/wp-content/yuklemeler/Goossl.png" width="300"></p>
+
+<p align="center">
+<img src="https://img.shields.io/github/workflow/status/yakuter/gossl/Test/main" alt="Build Status">
+<img src="https://img.shields.io/github/downloads/yakuter/gossl/total" alt="Total Downloads">
+<img src="https://img.shields.io/codecov/c/github/yakuter/gossl/main" alt="Codecov branch">
+<img src="https://img.shields.io/github/go-mod/go-version/yakuter/gossl" alt="Go Version">
+<a href="https://pkg.go.dev/github.com/yakuter/gossl"><img src="https://pkg.go.dev/badge/github.com/yakuter/gossl.svg" alt="Go Version"></a>
+</p>
+
+# GoSSL
 GoSSL is a cross platform, easy to use SSL/TLS toolset written with Go and built with ❤️
-
-![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/yakuter/gossl/Test/main) 
-![Codecov branch](https://img.shields.io/codecov/c/github/yakuter/gossl/main) 
-![GitHub all releases](https://img.shields.io/github/downloads/yakuter/gossl/total) 
-![goversion](https://img.shields.io/github/go-mod/go-version/yakuter/gossl)
-[![Go Reference](https://pkg.go.dev/badge/github.com/yakuter/gossl.svg)](https://pkg.go.dev/github.com/yakuter/gossl)
-
 
 ## Features
 - Generate RSA private and public key
