@@ -105,4 +105,3 @@ Generate Certificate
 2. Add cert template format read from yaml file
 3. Add verification of a CA and http endpoint
 4. Add certificate converter command like DER to PEM etc.
-5. Add Homebrew formula for MacOS (help wanted)
