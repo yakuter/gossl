@@ -1,5 +1,5 @@
 # gossl
-GoSSL is an SSL/TLS certificate tool written with Go and built with ❤️
+GoSSL is a cross platform, easy to use SSL/TLS toolset written with Go and built with ❤️
 
 ![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/yakuter/gossl/Test/main) 
 ![Codecov branch](https://img.shields.io/codecov/c/github/yakuter/gossl/main) 
