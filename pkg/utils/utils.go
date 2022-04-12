@@ -76,10 +76,18 @@ func CertToPEM(cert []byte) []byte {
 		Bytes: cert,
 	}
 
-	// Cert in PEM format
-	certPEM := pem.EncodeToMemory(&block)
+	return pem.EncodeToMemory(&block)
+}
 
-	return certPEM
+// CSRToPEM encodes CSR to PEM format
+func CSRToPEM(cert []byte) []byte {
+	// pem.Block
+	block := pem.Block{
+		Type:  "CERTIFICATE REQUEST",
+		Bytes: cert,
+	}
+
+	return pem.EncodeToMemory(&block)
 }
 
 func PrivateKeyFromPEMFile(keyFilePath string) (*rsa.PrivateKey, error) {

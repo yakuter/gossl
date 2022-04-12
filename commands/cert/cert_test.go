@@ -28,12 +28,14 @@ func TestCert(t *testing.T) {
 
 	testCases := []struct {
 		name      string
+		email     string
 		fqdn      string
 		key       string
 		out       string
 		days      int
 		serial    int
 		isCA      bool
+		isCSR     bool
 		shouldErr bool
 	}{
 		{
@@ -55,6 +57,28 @@ func TestCert(t *testing.T) {
 			serial:    123456,
 			isCA:      false,
 			shouldErr: false,
+		},
+		{
+			name:      "valid CSR",
+			fqdn:      "localhost",
+			email:     "john@doe.com",
+			key:       testKey,
+			out:       outFile,
+			days:      365,
+			serial:    123456,
+			isCSR:     true,
+			shouldErr: false,
+		},
+		{
+			name:      "empty email CSR error",
+			fqdn:      "localhost",
+			email:     "",
+			key:       testKey,
+			out:       outFile,
+			days:      365,
+			serial:    123456,
+			isCSR:     true,
+			shouldErr: true,
 		},
 		{
 			name:      "empty FQDN error",
@@ -99,9 +123,12 @@ func TestCert(t *testing.T) {
 			if tC.isCA {
 				testArgs = append(testArgs, "--isCA")
 			}
+			if tC.isCSR {
+				testArgs = append(testArgs, "--isCSR")
+			}
 
 			var stdin bytes.Buffer
-			stdin.Write([]byte(tC.fqdn + "\na\na\na\na\na\na\na"))
+			stdin.Write([]byte(tC.fqdn + "\n" + tC.email + "\na\na\na\na\na\na\na"))
 
 			app := &cli.App{
 				Commands: []*cli.Command{

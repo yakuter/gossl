@@ -2,8 +2,10 @@ package cert
 
 import (
 	"crypto/rand"
+	"crypto/rsa"
 	"crypto/x509"
 	"crypto/x509/pkix"
+	"encoding/asn1"
 	"errors"
 	"io"
 	"log"
@@ -25,6 +27,7 @@ const (
 	flagDays   = "days"
 	flagSerial = "serial"
 	flagIsCA   = "isCA"
+	flagIsCSR  = "isCSR"
 )
 
 func Command(reader io.Reader) *cli.Command {
@@ -68,7 +71,12 @@ func Flags() []cli.Flag {
 		},
 		&cli.BoolFlag{
 			Name:     flagIsCA,
-			Usage:    "Number of days the certificate is valid for",
+			Usage:    "Is Root Certificate Authority (CA) flag",
+			Required: false,
+		},
+		&cli.BoolFlag{
+			Name:     flagIsCSR,
+			Usage:    "Is Certificate Signing Request (CSR) flag",
 			Required: false,
 		},
 	}
@@ -76,52 +84,12 @@ func Flags() []cli.Flag {
 
 func Action(reader io.Reader) func(c *cli.Context) error {
 	return func(c *cli.Context) error {
-		questions := []string{
-			"Common Name - SAN (eg, FQDN or IP)* []",
-			"Country Name (2 letter code) [AU]",
-			"State or Province Name []",
-			"Locality Name (eg, city) []",
-			"Organization Name [eg, company]",
-			"Organizational Unit Name (eg, section) []",
-			"Street Addr []",
-			"Postal Code []",
-		}
-
-		// Ask questions to user and get answers
-		answers, err := utils.ReadInputs(questions, reader)
-		if err != nil {
-			log.Printf("failed to read inputs %v", err)
-			return err
-		}
-
-		if len(answers[0]) == 0 {
-			err = errors.New("Common Name - SAN cannot be empty")
-			log.Printf("%v", err)
-			return err
-		}
-
-		// Generate subject (pkix.Name) from answers
-		p := subject(answers)
-
-		// Generate template (x509 certificate)
-		t := template(p, c.Uint(flagDays), c.Uint64(flagSerial), c.Bool(flagIsCA))
-
 		// Get privatekey from file
 		privateKey, err := utils.PrivateKeyFromPEMFile(c.String(flagKey))
 		if err != nil {
 			log.Printf("Failed to get key from key file %s error: %v", c.String(flagKey), err)
 			return err
 		}
-
-		// Create x509 certificate
-		certx509, err := x509.CreateCertificate(rand.Reader, t, t, &privateKey.PublicKey, privateKey)
-		if err != nil {
-			log.Printf("Failed to create certificate error: %v", err)
-			return err
-		}
-
-		// Encode x509 certificate to PEM format
-		certBytes := utils.CertToPEM(certx509)
 
 		// Set output
 		output := os.Stdout
@@ -130,9 +98,27 @@ func Action(reader io.Reader) func(c *cli.Context) error {
 			outputFilePath = c.String(flagOut)
 		}
 
+		// Generate subject (pkix.Name) from answers
+		subj, email, err := subject(reader)
+		if err != nil {
+			log.Printf("Failed to generate subject error: %v", err)
+			return err
+		}
+
+		var outPEM []byte
+		if c.Bool(flagIsCSR) {
+			outPEM, err = generateCSR(subj, email, privateKey)
+		} else {
+			outPEM, err = generateCert(subj, c.Uint(flagDays), c.Uint64(flagSerial), c.Bool(flagIsCA), privateKey)
+		}
+		if err != nil {
+			log.Printf("Failed to create cert error: %v", err)
+			return err
+		}
+
 		// Write x509 certificate to file
-		if err = os.WriteFile(outputFilePath, certBytes, 0o600); err != nil {
-			log.Printf("Failed to write Public Key to file %s error: %v", outputFilePath, err)
+		if err = os.WriteFile(outputFilePath, outPEM, 0o600); err != nil {
+			log.Printf("Failed to write PEM to file %s error: %v", outputFilePath, err)
 			return err
 		}
 
@@ -141,16 +127,45 @@ func Action(reader io.Reader) func(c *cli.Context) error {
 	}
 }
 
-func subject(answers []string) pkix.Name {
-	return pkix.Name{
-		Country:            []string{answers[1]},
-		Province:           []string{answers[2]},
-		Locality:           []string{answers[3]},
-		Organization:       []string{answers[4]},
-		OrganizationalUnit: []string{answers[5]},
-		StreetAddress:      []string{answers[6]},
-		PostalCode:         []string{answers[7]},
+func subject(reader io.Reader) (pkix.Name, string, error) {
+	// Prepare questions which are needed for subject
+	questions := []string{
+		"Common Name - SAN (eg, FQDN or IP)* []",
+		"E-mail address* []",
+		"Country Name (2 letter code) [AU]",
+		"State or Province Name []",
+		"Locality Name (eg, city) []",
+		"Organization Name [eg, company]",
+		"Organizational Unit Name (eg, section) []",
+		"Street Addr []",
+		"Postal Code []",
 	}
+
+	// Ask questions to user and get inputs as answers
+	answers, err := utils.ReadInputs(questions, reader)
+	if err != nil {
+		log.Printf("failed to read inputs %v", err)
+		return pkix.Name{}, "", err
+	}
+
+	san := answers[0]
+	email := answers[1]
+
+	if len(san) == 0 {
+		err = errors.New("Common Name - SAN cannot be empty")
+		log.Printf("%v", err)
+		return pkix.Name{}, "", err
+	}
+
+	return pkix.Name{
+		Country:            []string{answers[2]},
+		Province:           []string{answers[3]},
+		Locality:           []string{answers[4]},
+		Organization:       []string{answers[5]},
+		OrganizationalUnit: []string{answers[6]},
+		StreetAddress:      []string{answers[7]},
+		PostalCode:         []string{answers[8]},
+	}, email, nil
 }
 
 func template(subject pkix.Name, days uint, serial uint64, isCA bool) *x509.Certificate {
@@ -169,4 +184,56 @@ func template(subject pkix.Name, days uint, serial uint64, isCA bool) *x509.Cert
 		t.BasicConstraintsValid = true
 	}
 	return t
+}
+
+func generateCert(subj pkix.Name, days uint, serial uint64, isCA bool, privateKey *rsa.PrivateKey) ([]byte, error) {
+	// Generate template (x509 certificate)
+	t := template(subj, days, serial, isCA)
+
+	// Create x509 certificate
+	certx509, err := x509.CreateCertificate(rand.Reader, t, t, &privateKey.PublicKey, privateKey)
+	if err != nil {
+		log.Printf("Failed to create certificate error: %v", err)
+		return nil, err
+	}
+
+	// Return cert in PEM format
+	return utils.CertToPEM(certx509), nil
+}
+
+func generateCSR(subj pkix.Name, email string, privateKey any) ([]byte, error) {
+	if len(email) == 0 {
+		err := errors.New("E-mail address cannot be empty")
+		log.Printf("%v", err)
+		return nil, err
+	}
+
+	oidEmailAddress := asn1.ObjectIdentifier{1, 2, 840, 113549, 1, 9, 1}
+
+	rawSubj := subj.ToRDNSequence()
+	rawSubj = append(rawSubj, []pkix.AttributeTypeAndValue{
+		{Type: oidEmailAddress, Value: email},
+	})
+
+	asn1Subj, err := asn1.Marshal(rawSubj)
+	if err != nil {
+		log.Printf("Failed to asn1.Marshal raw subject for CSR error: %v", err)
+		return nil, err
+	}
+
+	template := x509.CertificateRequest{
+		RawSubject:         asn1Subj,
+		EmailAddresses:     []string{email},
+		SignatureAlgorithm: x509.SHA256WithRSA,
+	}
+
+	// Create x509 certificate request (CSR)
+	csrBytes, err := x509.CreateCertificateRequest(rand.Reader, &template, privateKey)
+	if err != nil {
+		log.Printf("Failed to create certificate request error: %v", err)
+		return nil, err
+	}
+
+	// Return CSR in PEM format
+	return utils.CSRToPEM(csrBytes), nil
 }

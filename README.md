@@ -1,12 +1,12 @@
 # gossl
-
 GoSSL is an SSL/TLS certificate tool written with Go and built with ❤️
 
 ## Features
-- Verify a server certificate with a root CA
 - Generate RSA private and public key
-- Generate x509 RSA root CA
-- Generate x509 RSA server certificate
+- Generate x509 RSA Certificate Request (CSR)
+- Generate x509 RSA Root CA
+- Generate x509 RSA Certificate
+- Verify a Certificate with a Root CA
 - Generate SSH key pair
 - Copy SSH public key to remote SSH server
 
@@ -15,15 +15,6 @@ GoSSL is an SSL/TLS certificate tool written with Go and built with ❤️
 `help` command displays default help and existing commands
 ```bash
 ./gossl help
-```
-
-### verify
-`verify` command verifies x509 certificate with provided root CA in PEM format.
-
-```bash
-./gossl verify --help
-./gossl verify --cafile ./testdata/ca-cert.pem --certfile ./testdata/server-cert.pem
-./gossl verify --dns 127.0.0.1 --cafile ./testdata/ca-cert.pem --certfile ./testdata/server-cert.pem
 ```
 
 ### key
@@ -37,12 +28,22 @@ GoSSL is an SSL/TLS certificate tool written with Go and built with ❤️
 ```
 
 ### cert
-`cert` command generates root CA and x509 certificates with provided private key.
+`cert` command generates x509 SSL/TLS Certificate Request (CSR), Root CA and Certificate with provided private key.
 
+Help
 ```bash
 ./gossl cert --help
 ```
-// Generate Root CA
+Generate Certificate Request (CSR)
+```bash
+./gossl cert \
+    --key private.key \
+    --out cert.csr \
+    --days 365 \
+    --serial 12345 \
+    --isCSR
+```
+Generate Root CA
 ```bash
 ./gossl cert \
     --key private.key \
@@ -51,13 +52,22 @@ GoSSL is an SSL/TLS certificate tool written with Go and built with ❤️
     --serial 12345 \
     --isCA 
 ```
-// Generate Certificate
+Generate Certificate
 ```bash
 ./gossl cert \
     --key private.key \
     --out cert.pem \
     --days 365 \
     --serial 12345
+```
+
+### verify
+`verify` command verifies x509 certificate with provided root CA in PEM format.
+
+```bash
+./gossl verify --help
+./gossl verify --cafile ./testdata/ca-cert.pem --certfile ./testdata/server-cert.pem
+./gossl verify --dns 127.0.0.1 --cafile ./testdata/ca-cert.pem --certfile ./testdata/server-cert.pem
 ```
 
 ### ssh
