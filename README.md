@@ -1,6 +1,9 @@
 # gossl
 GoSSL is an SSL/TLS certificate tool written with Go and built with ❤️
 
+![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/yakuter/gossl/Test/main) 
+![Codecov branch](https://img.shields.io/codecov/c/github/yakuter/gossl/main)
+
 ## Features
 - Generate RSA private and public key
 - Generate x509 RSA Certificate Request (CSR)
