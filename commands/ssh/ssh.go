@@ -54,7 +54,7 @@ func Action(c *cli.Context) error {
 	}
 
 	// Generate Public Key from Private Key
-	publicKeyBytes, err := utils.GeneratePublicKey(&privateKey.PublicKey)
+	publicKeyBytes, err := utils.GenerateSSHPublicKey(&privateKey.PublicKey)
 	if err != nil {
 		log.Printf("Failed to generate Public Key error: %v", err)
 		return err

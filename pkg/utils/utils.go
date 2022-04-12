@@ -15,9 +15,9 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-// GeneratePublicKey take an rsa.PublicKey and return bytes
+// GenerateSSHPublicKey take an rsa.PublicKey and return bytes
 // suitable for writing to .pub file in the format "ssh-rsa ..."
-func GeneratePublicKey(rsaPubKey *rsa.PublicKey) ([]byte, error) {
+func GenerateSSHPublicKey(rsaPubKey *rsa.PublicKey) ([]byte, error) {
 	sshPubKey, err := ssh.NewPublicKey(rsaPubKey)
 	if err != nil {
 		return nil, err
