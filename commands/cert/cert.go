@@ -201,7 +201,7 @@ func generateCert(subj pkix.Name, days uint, serial uint64, isCA bool, privateKe
 	return utils.CertToPEM(certx509), nil
 }
 
-func generateCSR(subj pkix.Name, email string, privateKey any) ([]byte, error) {
+func generateCSR(subj pkix.Name, email string, privateKey *rsa.PrivateKey) ([]byte, error) {
 	if len(email) == 0 {
 		err := errors.New("E-mail address cannot be empty")
 		log.Printf("%v", err)
