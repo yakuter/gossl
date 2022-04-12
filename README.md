@@ -85,4 +85,3 @@ GoSSL is an SSL/TLS certificate tool written with Go and built with ❤️
 3. Add verification of a CA and http endpoint
 4. Add test for utils package
 5. Add test for help package
-6. Add test for ssh-copy
