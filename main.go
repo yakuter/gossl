@@ -15,14 +15,14 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-var version string = "v0.1.0"
+var Version = "v0.1.5"
 
 func main() {
 	app := &cli.App{
 		Name:     "GoSSL",
 		Usage:    "Don't be afraid of SSL anymore",
 		Commands: Commands(os.Stdin),
-		Version:  version,
+		Version:  Version,
 	}
 
 	if err := app.Run(os.Args); err != nil {

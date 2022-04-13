@@ -5,14 +5,14 @@ builds:
     goos:
       - linux
       - darwin
-      # - windows
+      - windows
     goarch:
-      # - 386
+      - 386
       - amd64
-      # - arm
+      - arm
       - arm64
     ldflags:
-      - -s -w -X github.com/yakuter/gossl/main.version={{.Version}}
+      - -s -w -X main.Version={{.Version}}
     binary: "gossl"
 archives:
   - replacements:

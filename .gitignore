@@ -2,3 +2,4 @@ dist
 gossl
 *.pem
 *.key
+.vscode
