@@ -24,8 +24,8 @@ GoSSL is a cross platform, easy to use SSL/TLS toolset written with Go and built
 ## Install
 Executable binaries can be downloaded at [Releases](https://github.com/yakuter/gossl/releases) page according to user's operating system and architecture. After download, extract compressed files and start using GoSSL via terminal.
 
-### MacOS Homebrew Install
-MacOS users can install GoSSl via Homebrew with the commands below.
+#### MacOS Homebrew Install
+MacOS users can install GoSSL via Homebrew with the commands below.
 ```bash
 brew tap yakuter/homebrew-tap
 brew install gossl
