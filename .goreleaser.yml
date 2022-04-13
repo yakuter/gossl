@@ -12,7 +12,7 @@ builds:
       # - arm
       - arm64
     ldflags:
-      - -s -w
+      - -s -w -X github.com/yakuter/gossl/main.version={{.Version}}
     binary: "gossl"
 archives:
   - replacements:
