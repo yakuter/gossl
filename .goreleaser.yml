@@ -35,7 +35,7 @@ brews:
     tap:
       owner: yakuter
       name: homebrew-tap
-      token: ${{ secrets.HOMEBREW_TOKEN }}
+      token: {{ .Env.HOMEBREW_TOKEN }}
     folder: Formula
     install: |
       bin.install "gossl"
