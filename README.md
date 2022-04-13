@@ -24,7 +24,7 @@ GoSSL is a cross platform, easy to use SSL/TLS toolset written with Go and built
 ## Install
 Executable binaries can be downloaded at [Releases](https://github.com/yakuter/gossl/releases) page according to user's operating system and architecture. After download, extract compressed files and start using GoSSL via terminal.
 
-#### MacOS Homebrew Install
+### MacOS Homebrew Install
 MacOS users can install GoSSL via Homebrew with the commands below.
 ```bash
 brew tap yakuter/homebrew-tap
@@ -32,20 +32,29 @@ brew install gossl
 ```
 
 ## Commands
-### help
-`help` command displays default help and existing commands
+### version
+`version` command displays the current version of GoSSL
 ```bash
-./gossl help
+gossl -v
+gossl --version
+```
+
+### help
+`help` command displays default help and existing commands. It can also be used to get sub command helps.
+```bash
+gossl help
+gossl help cert
+...
 ```
 
 ### key
 `key` command generates RSA private key with provided bit size.
 
 ```bash
-./gossl key --help
-./gossl key --bits 2048
-./gossl key --bits 2048 --out private.key
-./gossl key --bits 2048 --out private.key --withpub
+gossl key --help
+gossl key --bits 2048
+gossl key --bits 2048 --out private.key
+gossl key --bits 2048 --out private.key --withpub
 ```
 
 ### cert
@@ -53,11 +62,11 @@ brew install gossl
 
 Help
 ```bash
-./gossl cert --help
+gossl cert --help
 ```
 Generate Certificate Request (CSR)
 ```bash
-./gossl cert \
+gossl cert \
     --key private.key \
     --out cert.csr \
     --days 365 \
@@ -66,7 +75,7 @@ Generate Certificate Request (CSR)
 ```
 Generate Root CA
 ```bash
-./gossl cert \
+gossl cert \
     --key private.key \
     --out ca.pem \
     --days 365 \
@@ -75,7 +84,7 @@ Generate Root CA
 ```
 Generate Certificate
 ```bash
-./gossl cert \
+gossl cert \
     --key private.key \
     --out cert.pem \
     --days 365 \
@@ -86,18 +95,23 @@ Generate Certificate
 `verify` command verifies x509 certificate with provided root CA in PEM format.
 
 ```bash
-./gossl verify --help
-./gossl verify --cafile ./testdata/ca-cert.pem --certfile ./testdata/server-cert.pem
-./gossl verify --dns 127.0.0.1 --cafile ./testdata/ca-cert.pem --certfile ./testdata/server-cert.pem
+gossl verify --help
+
+// Verify certificate with root CA 
+gossl verify --cafile ./testdata/ca-cert.pem --certfile ./testdata/server-cert.pem
+gossl verify --cafile ./testdata/ca-cert.pem --certfile ./testdata/server-cert.pem --dns 127.0.0.1
+
+// Verify URL with root CA
+gossl verify --cafile testdata/ca-cert.pem --url https://127.0.0.1
 ```
 
 ### ssh
 `ssh` command generates SSH key pair with provided bit size just like `ssh-keygen` tool. These key pairs are used for automating logins, single sign-on, and for authenticating hosts.
 
 ```bash
-./gossl key --help
-./gossl key --bits 2048
-./gossl key --bits 2048 -out ./id_rsa
+gossl key --help
+gossl key --bits 2048
+gossl key --bits 2048 --out ./id_rsa
 // output will be written to ./id_rsa and ./id_rsa_pub files
 ```
 
@@ -105,13 +119,13 @@ Generate Certificate
 `ssh-copy` connects remote SSH server, creates `/home/user/.ssh` directory and `authorized_keys` file in it and appends provided public key (eg, id_rsa.pub) to `authorized_keys` file just like `ssh-copy-id` tool.
 
 ```bash
-./gossl ssh-copy --help
-./gossl ssh-copy --pubkey /home/user/.ssh/id_rsa.pub remoteUser@remoteIP
+gossl ssh-copy --help
+gossl ssh-copy --pubkey /home/user/.ssh/id_rsa.pub remoteUser@remoteIP
 // This command will ask for password to connect SSH server
 ```
 
 ### TODO
 1. Add generate command for generating private key, root ca and x509 certificates in one command
 2. Add cert template format read from yaml file
-3. Add verification of a CA and http endpoint
-4. Add certificate converter command like DER to PEM etc.
+3. Add certificate converter command like DER to PEM etc.
+4. Add test for verify URL
