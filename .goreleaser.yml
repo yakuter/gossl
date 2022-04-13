@@ -1,21 +1,40 @@
+project_name: gossl
 builds:
-- goos:
-    - linux
-    - darwin
-    - windows
-  goarch:
-    - amd64
-    - arm64
-
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - 386
+      - amd64
+      - arm
+      - arm64
+    ldflags:
+      - -s -w
+    binary: "gossl"
 archives:
-- name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
-  format_overrides:
-    - goos: windows
-      format: zip
+  - replacements:
+      darwin: macOS
+    name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
+    format_overrides:
+      - goos: windows
+        format: zip
 checksum:
-  name_template: 'checksums.txt'
-
+  name_template: "{{ .ProjectName }}_{{ .Version }}_checksums.txt"
 nfpms:
   - formats:
       - deb
       - rpm
+brews:
+  - homepage: "https://github.com/yakuter/gossl"
+    description: "GoSSL is a cross platform, easy to use SSL/TLS toolset"
+    name: "gossl"
+    license: Apache 2.0
+    tap:
+      owner: yakuter
+      name: homebrew-tap
+    folder: Formula
+    install: |
+      bin.install "gossl"
