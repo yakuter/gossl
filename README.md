@@ -18,6 +18,7 @@ GoSSL is a cross platform, easy to use SSL/TLS toolset written with Go and built
 - Generate x509 RSA Root CA
 - Generate x509 RSA Certificate
 - Verify a Certificate with a Root CA
+- Verify a URL with a Root CA
 - Generate SSH key pair
 - Copy SSH public key to remote SSH server
 
