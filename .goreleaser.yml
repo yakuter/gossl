@@ -3,14 +3,14 @@ builds:
   - env:
       - CGO_ENABLED=0
     goos:
-      - linux
-      # - darwin
+      # - linux
+      - darwin
       # - windows
     goarch:
       # - 386
-      - amd64
+      # - amd64
       # - arm
-      # - arm64
+      - arm64
     ldflags:
       - -s -w
     binary: "gossl"
