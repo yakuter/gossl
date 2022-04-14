@@ -183,7 +183,7 @@ func verifyURLWithCA(c *cli.Context, url string, roots *x509.CertPool) error {
 
 	_, err := client.Get(url)
 	if err != nil {
-		log.Printf("Failed to sen Get request to URL %s error: %v", url, err)
+		log.Printf("Failed to send Get request to URL %s error: %v", url, err)
 		return err
 	}
 
