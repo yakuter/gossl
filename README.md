@@ -121,8 +121,12 @@ gossl key --bits 2048 --out ./id_rsa
 
 ```bash
 gossl ssh-copy --help
-gossl ssh-copy --pubkey /home/user/.ssh/id_rsa.pub remoteUser@remoteIP
+
 // This command will ask for password to connect SSH server
+gossl ssh-copy --pubkey /home/user/.ssh/id_rsa.pub remoteUser@remoteIP
+
+gossl ssh-copy --pubkey /home/user/.ssh/id_rsa.pub --password passw@rd123 remoteUser@remoteIP
+
 ```
 
 ### TODO

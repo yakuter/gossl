@@ -81,8 +81,20 @@ func TestSSHCopy(t *testing.T) {
 			shouldErr: false,
 		},
 		{
+			name:      "valid sftp connection and write with password flag",
+			user:      testUser,
+			pass:      testPass,
+			shouldErr: false,
+		},
+		{
 			name:      "credentials error",
 			user:      "wrongUser",
+			shouldErr: true,
+		},
+		{
+			name:      "credentials error with password flag",
+			user:      "wrongUser",
+			pass:      "wrongpass",
 			shouldErr: true,
 		},
 	}
@@ -93,8 +105,11 @@ func TestSSHCopy(t *testing.T) {
 				execName, CmdSSHCopy,
 				"--pubkey", pubFile.Name(),
 				"--port", port,
-				fmt.Sprintf("%s@localhost", tC.user),
 			}
+			if tC.pass != "" {
+				testArgs = append(testArgs, "--password", tC.pass)
+			}
+			testArgs = append(testArgs, fmt.Sprintf("%s@localhost", tC.user))
 
 			app := &cli.App{
 				Commands: []*cli.Command{

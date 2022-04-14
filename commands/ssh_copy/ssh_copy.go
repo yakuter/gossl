@@ -18,8 +18,9 @@ import (
 const (
 	CmdSSHCopy = "ssh-copy"
 
-	flagPubkey = "pubkey"
-	flagPort   = "port"
+	flagPubkey   = "pubkey"
+	flagPort     = "port"
+	flagPassword = "password"
 )
 
 func Command(reader passwordReader) *cli.Command {
@@ -49,6 +50,11 @@ func Flags() []cli.Flag {
 			DefaultText: "eg, 22",
 			Value:       22,
 		},
+		&cli.StringFlag{
+			Name:     flagPassword,
+			Usage:    "SSH server password",
+			Required: false,
+		},
 	}
 }
 
@@ -70,12 +76,16 @@ func Action(reader passwordReader) func(*cli.Context) error {
 			return err
 		}
 
-		// Get password from user
-		fmt.Printf("Password: ")
-		pwd, err := reader.ReadPassword()
-		if err != nil {
-			log.Printf("failed to read inputs %v", err)
-			return err
+		var pwd string
+		if c.IsSet(flagPassword) {
+			pwd = c.String(flagPassword)
+		} else {
+			fmt.Printf("Password: ")
+			pwd, err = reader.ReadPassword()
+			if err != nil {
+				log.Printf("failed to read inputs %v", err)
+				return err
+			}
 		}
 
 		// Connect to remote SSH server with SFTP
