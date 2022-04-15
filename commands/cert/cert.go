@@ -12,6 +12,7 @@ import (
 	"math/big"
 	"net"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/yakuter/gossl/pkg/utils"
@@ -127,7 +128,7 @@ func Action(reader io.Reader) func(c *cli.Context) error {
 	}
 }
 
-func subject(reader io.Reader) (pkix.Name, string, string, error) {
+func subject(reader io.Reader) (pkix.Name, []string, string, error) {
 	// Prepare questions which are needed for subject
 	questions := []string{
 		"Common Name - SAN (eg, FQDN or IP)* []",
@@ -145,30 +146,32 @@ func subject(reader io.Reader) (pkix.Name, string, string, error) {
 	answers, err := utils.ReadInputs(questions, reader)
 	if err != nil {
 		log.Printf("failed to read inputs %v", err)
-		return pkix.Name{}, "", "", err
+		return pkix.Name{}, []string{}, "", err
 	}
 
-	san := answers[0]
 	email := answers[1]
 
-	if len(san) == 0 {
+	if len(answers[0]) == 0 {
 		err = errors.New("Common Name - SAN cannot be empty")
 		log.Printf("%v", err)
-		return pkix.Name{}, "", "", err
+		return pkix.Name{}, []string{}, "", err
 	}
 
+	sans := strings.Split(answers[0], ",")
+
 	return pkix.Name{
-		Country:            []string{answers[2]},
-		Province:           []string{answers[3]},
-		Locality:           []string{answers[4]},
-		Organization:       []string{answers[5]},
-		OrganizationalUnit: []string{answers[6]},
-		StreetAddress:      []string{answers[7]},
-		PostalCode:         []string{answers[8]},
-	}, san, email, nil
+		CommonName:         sans[0],
+		Country:            strings.Split(answers[2], ","),
+		Province:           strings.Split(answers[3], ","),
+		Locality:           strings.Split(answers[4], ","),
+		Organization:       strings.Split(answers[5], ","),
+		OrganizationalUnit: strings.Split(answers[6], ","),
+		StreetAddress:      strings.Split(answers[7], ","),
+		PostalCode:         strings.Split(answers[8], ","),
+	}, sans, email, nil
 }
 
-func template(subject pkix.Name, dns string, days uint, serial uint64, isCA bool) *x509.Certificate {
+func template(subject pkix.Name, dns []string, days uint, serial uint64, isCA bool) *x509.Certificate {
 	t := &x509.Certificate{
 		SerialNumber: big.NewInt(int64(serial)),
 		Subject:      subject,
@@ -179,11 +182,13 @@ func template(subject pkix.Name, dns string, days uint, serial uint64, isCA bool
 		IPAddresses:  []net.IP{net.IPv4(127, 0, 0, 1), net.IPv6loopback},
 	}
 
-	addr := net.ParseIP(dns)
-	if addr != nil {
-		t.IPAddresses = append(t.IPAddresses, addr)
-	} else {
-		t.DNSNames = append(t.DNSNames, dns)
+	for i := range dns {
+		addr := net.ParseIP(dns[i])
+		if addr != nil {
+			t.IPAddresses = append(t.IPAddresses, addr)
+		} else {
+			t.DNSNames = append(t.DNSNames, dns[i])
+		}
 	}
 
 	if isCA {
@@ -193,7 +198,7 @@ func template(subject pkix.Name, dns string, days uint, serial uint64, isCA bool
 	return t
 }
 
-func generateCert(subj pkix.Name, dns string, days uint, serial uint64, isCA bool, privateKey *rsa.PrivateKey) ([]byte, error) {
+func generateCert(subj pkix.Name, dns []string, days uint, serial uint64, isCA bool, privateKey *rsa.PrivateKey) ([]byte, error) {
 	// Generate template (x509 certificate)
 	t := template(subj, dns, days, serial, isCA)
 
@@ -208,7 +213,7 @@ func generateCert(subj pkix.Name, dns string, days uint, serial uint64, isCA boo
 	return utils.CertToPEM(certx509), nil
 }
 
-func generateCSR(subj pkix.Name, dns, email string, privateKey *rsa.PrivateKey) ([]byte, error) {
+func generateCSR(subj pkix.Name, dns []string, email string, privateKey *rsa.PrivateKey) ([]byte, error) {
 	if len(email) == 0 {
 		err := errors.New("E-mail address cannot be empty")
 		log.Printf("%v", err)
@@ -229,7 +234,7 @@ func generateCSR(subj pkix.Name, dns, email string, privateKey *rsa.PrivateKey) 
 	}
 
 	template := x509.CertificateRequest{
-		DNSNames:           []string{dns},
+		DNSNames:           dns,
 		RawSubject:         asn1Subj,
 		EmailAddresses:     []string{email},
 		SignatureAlgorithm: x509.SHA256WithRSA,
