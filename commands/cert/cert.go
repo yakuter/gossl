@@ -99,7 +99,7 @@ func Action(reader io.Reader) func(c *cli.Context) error {
 		}
 
 		// Generate subject (pkix.Name) from answers
-		subj, email, err := subject(reader)
+		subj, dns, email, err := subject(reader)
 		if err != nil {
 			log.Printf("Failed to generate subject error: %v", err)
 			return err
@@ -107,9 +107,9 @@ func Action(reader io.Reader) func(c *cli.Context) error {
 
 		var outPEM []byte
 		if c.Bool(flagIsCSR) {
-			outPEM, err = generateCSR(subj, email, privateKey)
+			outPEM, err = generateCSR(subj, dns, email, privateKey)
 		} else {
-			outPEM, err = generateCert(subj, c.Uint(flagDays), c.Uint64(flagSerial), c.Bool(flagIsCA), privateKey)
+			outPEM, err = generateCert(subj, dns, c.Uint(flagDays), c.Uint64(flagSerial), c.Bool(flagIsCA), privateKey)
 		}
 		if err != nil {
 			log.Printf("Failed to create cert error: %v", err)
@@ -127,7 +127,7 @@ func Action(reader io.Reader) func(c *cli.Context) error {
 	}
 }
 
-func subject(reader io.Reader) (pkix.Name, string, error) {
+func subject(reader io.Reader) (pkix.Name, string, string, error) {
 	// Prepare questions which are needed for subject
 	questions := []string{
 		"Common Name - SAN (eg, FQDN or IP)* []",
@@ -145,7 +145,7 @@ func subject(reader io.Reader) (pkix.Name, string, error) {
 	answers, err := utils.ReadInputs(questions, reader)
 	if err != nil {
 		log.Printf("failed to read inputs %v", err)
-		return pkix.Name{}, "", err
+		return pkix.Name{}, "", "", err
 	}
 
 	san := answers[0]
@@ -154,7 +154,7 @@ func subject(reader io.Reader) (pkix.Name, string, error) {
 	if len(san) == 0 {
 		err = errors.New("Common Name - SAN cannot be empty")
 		log.Printf("%v", err)
-		return pkix.Name{}, "", err
+		return pkix.Name{}, "", "", err
 	}
 
 	return pkix.Name{
@@ -165,10 +165,10 @@ func subject(reader io.Reader) (pkix.Name, string, error) {
 		OrganizationalUnit: []string{answers[6]},
 		StreetAddress:      []string{answers[7]},
 		PostalCode:         []string{answers[8]},
-	}, email, nil
+	}, san, email, nil
 }
 
-func template(subject pkix.Name, days uint, serial uint64, isCA bool) *x509.Certificate {
+func template(subject pkix.Name, dns string, days uint, serial uint64, isCA bool) *x509.Certificate {
 	t := &x509.Certificate{
 		SerialNumber: big.NewInt(int64(serial)),
 		Subject:      subject,
@@ -179,6 +179,13 @@ func template(subject pkix.Name, days uint, serial uint64, isCA bool) *x509.Cert
 		IPAddresses:  []net.IP{net.IPv4(127, 0, 0, 1), net.IPv6loopback},
 	}
 
+	addr := net.ParseIP(dns)
+	if addr != nil {
+		t.IPAddresses = append(t.IPAddresses, addr)
+	} else {
+		t.DNSNames = append(t.DNSNames, dns)
+	}
+
 	if isCA {
 		t.IsCA = true
 		t.BasicConstraintsValid = true
@@ -186,9 +193,9 @@ func template(subject pkix.Name, days uint, serial uint64, isCA bool) *x509.Cert
 	return t
 }
 
-func generateCert(subj pkix.Name, days uint, serial uint64, isCA bool, privateKey *rsa.PrivateKey) ([]byte, error) {
+func generateCert(subj pkix.Name, dns string, days uint, serial uint64, isCA bool, privateKey *rsa.PrivateKey) ([]byte, error) {
 	// Generate template (x509 certificate)
-	t := template(subj, days, serial, isCA)
+	t := template(subj, dns, days, serial, isCA)
 
 	// Create x509 certificate
 	certx509, err := x509.CreateCertificate(rand.Reader, t, t, &privateKey.PublicKey, privateKey)
@@ -201,7 +208,7 @@ func generateCert(subj pkix.Name, days uint, serial uint64, isCA bool, privateKe
 	return utils.CertToPEM(certx509), nil
 }
 
-func generateCSR(subj pkix.Name, email string, privateKey *rsa.PrivateKey) ([]byte, error) {
+func generateCSR(subj pkix.Name, dns, email string, privateKey *rsa.PrivateKey) ([]byte, error) {
 	if len(email) == 0 {
 		err := errors.New("E-mail address cannot be empty")
 		log.Printf("%v", err)
@@ -222,6 +229,7 @@ func generateCSR(subj pkix.Name, email string, privateKey *rsa.PrivateKey) ([]by
 	}
 
 	template := x509.CertificateRequest{
+		DNSNames:           []string{dns},
 		RawSubject:         asn1Subj,
 		EmailAddresses:     []string{email},
 		SignatureAlgorithm: x509.SHA256WithRSA,
