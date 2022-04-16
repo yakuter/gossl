@@ -109,6 +109,32 @@ func PrivateKeyFromPEMFile(keyFilePath string) (*rsa.PrivateKey, error) {
 	return key, nil
 }
 
+func CertFromFile(certFilePath string) (*x509.Certificate, error) {
+	// Read cert file
+	certFileBytes, err := os.ReadFile(certFilePath)
+	if err != nil {
+		log.Printf("Failed to read cert file %q error: %v", certFilePath, err)
+		return nil, err
+	}
+
+	// Decode PEM encoded cert file
+	block, _ := pem.Decode(certFileBytes)
+	if block == nil {
+		err = errors.New("block is nil")
+		log.Printf("Failed to decode PEM encoded cert file %q error: %v", certFilePath, err)
+		return nil, err
+	}
+
+	// Parse x509 certificate
+	cert, err := x509.ParseCertificate(block.Bytes)
+	if err != nil {
+		log.Printf("Failed to parse x509 certificate from cert file %q error: %v", certFilePath, err)
+		return nil, err
+	}
+
+	return cert, nil
+}
+
 func ReadInputs(questions []string, reader io.Reader) ([]string, error) {
 	answers := make([]string, len(questions))
 	scanner := bufio.NewScanner(reader)

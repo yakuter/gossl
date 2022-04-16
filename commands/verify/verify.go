@@ -3,12 +3,13 @@ package verify
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"encoding/pem"
 	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/yakuter/gossl/pkg/utils"
 
 	"github.com/urfave/cli/v2"
 )
@@ -79,7 +80,7 @@ func Action(c *cli.Context) error {
 
 	// Verify cert file
 	if c.IsSet(flagCertFile) {
-		cert, err := x509Cert(c.String(flagCertFile))
+		cert, err := utils.CertFromFile(c.String(flagCertFile))
 		if err != nil {
 			log.Printf("Failed to get cert from file %s CAs error: %v", c.String(flagCertFile), err)
 			return err
@@ -122,32 +123,6 @@ func rootCAs(caFilePath string) (*x509.CertPool, error) {
 	}
 
 	return roots, nil
-}
-
-func x509Cert(certFilePath string) (*x509.Certificate, error) {
-	// Read cert file
-	certFileBytes, err := os.ReadFile(certFilePath)
-	if err != nil {
-		log.Printf("Failed to read cert file %q error: %v", certFilePath, err)
-		return nil, err
-	}
-
-	// Decode PEM encoded cert file
-	block, _ := pem.Decode(certFileBytes)
-	if block == nil {
-		err = errors.New("block is nil")
-		log.Printf("Failed to decode PEM encoded cert file %q error: %v", certFilePath, err)
-		return nil, err
-	}
-
-	// Parse x509 certificate
-	cert, err := x509.ParseCertificate(block.Bytes)
-	if err != nil {
-		log.Printf("Failed to parse x509 certificate from cert file %q error: %v", certFilePath, err)
-		return nil, err
-	}
-
-	return cert, nil
 }
 
 func verifyCertWithCA(c *cli.Context, cert *x509.Certificate, roots *x509.CertPool) error {

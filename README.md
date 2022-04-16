@@ -58,6 +58,13 @@ gossl key --bits 2048 --out private.key
 gossl key --bits 2048 --out private.key --withpub
 ```
 
+### info
+`info` displays information about x509 certificate. Thanks [grantae](https://github.com/grantae) for great [certinfo](https://github.com/grantae/certinfo) tool which is used here.
+
+```bash
+gossl info cert.pem
+```
+
 ### cert
 `cert` command generates x509 SSL/TLS Certificate Request (CSR), Root CA and Certificate with provided private key.
 
@@ -136,3 +143,5 @@ gossl ssh-copy --pubkey /home/user/.ssh/id_rsa.pub --password passw@rd123 remote
 1. Add generate command for generating private key, root ca and x509 certificates in one command
 2. Add cert template format read from yaml file
 3. Add certificate converter command like DER to PEM etc.
+4. Add test for info command
+5. Add test for CertFromFile function at utils package
