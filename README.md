@@ -122,6 +122,9 @@ gossl key --bits 2048 --out ./id_rsa
 ```bash
 gossl ssh-copy --help
 
+// This command will use default SSH public key path as "USER_HOME_DIR/.ssh/id_rsa.pub"
+gossl ssh-copy remoteUser@remoteIP
+
 // This command will ask for password to connect SSH server
 gossl ssh-copy --pubkey /home/user/.ssh/id_rsa.pub remoteUser@remoteIP
 
