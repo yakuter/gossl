@@ -14,7 +14,6 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-// Remote commands
 const (
 	CmdVerify = "verify"
 

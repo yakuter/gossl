@@ -13,14 +13,15 @@
 GoSSL is a cross platform, easy to use SSL/TLS toolset written with Go and built with ❤️
 
 ## Features
-- Generate RSA private and public key
-- Generate x509 RSA Certificate Request (CSR)
-- Generate x509 RSA Root CA
-- Generate x509 RSA Certificate
-- Verify a Certificate with a Root CA
-- Verify a URL with a Root CA
-- Generate SSH key pair
-- Copy SSH public key to remote SSH server
+- Generate RSA private and public key - key command
+- Generate x509 RSA Certificate Request (CSR) - cert command
+- Generate x509 RSA Root CA - cert command
+- Generate x509 RSA Certificate - cert command
+- Get information about an x509 RSA Certificate - info command
+- Verify a Certificate with a Root CA - verify command
+- Verify a URL with a Root CA - verify command
+- Generate SSH key pair - ssh command
+- Copy SSH public key to remote SSH server - ssh-copy command
 
 ## Install
 Executable binaries can be downloaded at [Releases](https://github.com/yakuter/gossl/releases) page according to user's operating system and architecture. After download, extract compressed files and start using GoSSL via terminal.
@@ -145,3 +146,4 @@ gossl ssh-copy --pubkey /home/user/.ssh/id_rsa.pub --password passw@rd123 remote
 3. Add certificate converter command like DER to PEM etc.
 4. Add test for info command
 5. Add test for CertFromFile function at utils package
+6. Send http request and display certificate info with info command
