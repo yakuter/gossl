@@ -3,6 +3,7 @@ module github.com/yakuter/gossl
 go 1.18
 
 require (
+	github.com/grantae/certinfo v0.0.0-20170412194111-59d56a35515b
 	github.com/pkg/sftp v1.13.4
 	github.com/stretchr/testify v1.7.1
 	github.com/urfave/cli/v2 v2.4.0
