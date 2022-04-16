@@ -39,7 +39,7 @@ func Flags() []cli.Flag {
 	return []cli.Flag{
 		&cli.StringFlag{
 			Name:        flagPubkey,
-			Usage:       "Output file path",
+			Usage:       "SSH Public Key file path to copy",
 			Required:    false,
 			DefaultText: "eg, /home/user/.ssh/id_rsa.pub",
 		},
@@ -58,10 +58,24 @@ func Flags() []cli.Flag {
 	}
 }
 
+var homeDir = os.UserHomeDir
+
 func Action(reader passwordReader) func(*cli.Context) error {
 	return func(c *cli.Context) error {
+		var pubKeyPath string
+		if !c.IsSet(flagPubkey) {
+			homeDir, err := homeDir()
+			if err != nil {
+				log.Printf("Failed to get user home dir error: %v", err)
+				return err
+			}
+			pubKeyPath = filepath.Join(homeDir, ".ssh", "id_rsa.pub")
+		} else {
+			pubKeyPath = c.String(flagPubkey)
+		}
+
 		// Read public key from file
-		pubKey, err := os.ReadFile(c.String(flagPubkey))
+		pubKey, err := os.ReadFile(pubKeyPath)
 		if err != nil {
 			log.Printf("Failed to read public key error: %v", err)
 			return err

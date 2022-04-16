@@ -61,40 +61,66 @@ func TestSSHCopy(t *testing.T) {
 		}
 	}()
 
-	pubFile, err := os.CreateTemp(t.TempDir(), "pubkey")
+	tempDir := t.TempDir()
+	sshDir := filepath.Join(tempDir, ".ssh")
+
+	err = os.MkdirAll(sshDir, 0o777)
 	require.NoError(t, err)
 
+	pubFile, err := os.Create(filepath.Join(sshDir, "id_rsa.pub"))
+	require.NoError(t, err)
 	defer pubFile.Close()
+
+	origHomeDir := homeDir
+	defer func() {
+		homeDir = origHomeDir
+	}()
+
+	homeDir = func() (string, error) {
+		return tempDir, nil
+	}
 
 	execName, err := os.Executable()
 	require.NoError(t, err)
 
 	testCases := []struct {
 		name      string
-		user      string
 		pass      string
+		pubkey    string
+		remote    string
 		shouldErr bool
 	}{
 		{
 			name:      "valid sftp connection and write",
-			user:      testUser,
+			pubkey:    pubFile.Name(),
+			remote:    fmt.Sprintf("%s@localhost", testUser),
+			shouldErr: false,
+		},
+		{
+			name:      "valid sftp connection and write without pubkey",
+			remote:    fmt.Sprintf("%s@localhost", testUser),
 			shouldErr: false,
 		},
 		{
 			name:      "valid sftp connection and write with password flag",
-			user:      testUser,
 			pass:      testPass,
+			remote:    fmt.Sprintf("%s@localhost", testUser),
 			shouldErr: false,
 		},
 		{
 			name:      "credentials error",
-			user:      "wrongUser",
+			remote:    fmt.Sprintf("%s@localhost", "wrongUser"),
 			shouldErr: true,
 		},
 		{
 			name:      "credentials error with password flag",
-			user:      "wrongUser",
 			pass:      "wrongpass",
+			remote:    fmt.Sprintf("%s@localhost", testUser),
+			shouldErr: true,
+		},
+		{
+			name:      "remote address without @",
+			remote:    "wrong-remote",
 			shouldErr: true,
 		},
 	}
@@ -103,13 +129,15 @@ func TestSSHCopy(t *testing.T) {
 		t.Run(tC.name, func(t *testing.T) {
 			testArgs := []string{
 				execName, CmdSSHCopy,
-				"--pubkey", pubFile.Name(),
 				"--port", port,
+			}
+			if tC.pubkey != "" {
+				testArgs = append(testArgs, "--pubkey", tC.pubkey)
 			}
 			if tC.pass != "" {
 				testArgs = append(testArgs, "--password", tC.pass)
 			}
-			testArgs = append(testArgs, fmt.Sprintf("%s@localhost", tC.user))
+			testArgs = append(testArgs, tC.remote)
 
 			app := &cli.App{
 				Commands: []*cli.Command{
