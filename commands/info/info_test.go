@@ -24,19 +24,24 @@ func TestInfo(t *testing.T) {
 	tempDir := t.TempDir()
 	outFilePath := filepath.Join(tempDir, "test-file-*")
 
-	var (
-		arg = "../../testdata/server-cert.pem"
+	const (
+		argFile               = "../../testdata/server-cert.pem"
+		flagURL               = "google.com"
+		flagURLwithScheme     = "https://google.com"
+		flagURLwithPort       = "google.com:443"
+		flagURLwithSchemePort = "https://google.com:443"
 	)
 
 	testCases := []struct {
 		name      string
 		arg       string
+		url       string
 		out       string
 		shouldErr bool
 	}{
 		{
-			name:      "valid cert",
-			arg:       arg,
+			name:      "valid cert file",
+			arg:       argFile,
 			shouldErr: false,
 		},
 		{
@@ -44,21 +49,53 @@ func TestInfo(t *testing.T) {
 			shouldErr: true,
 		},
 		{
-			name:      "wrong cert",
+			name:      "wrong cert file or invalid URL",
 			arg:       "wrong-arg",
 			shouldErr: true,
 		},
 		{
-			name:      "valid cert",
-			arg:       arg,
+			name:      "valid cert file with output",
+			arg:       argFile,
 			out:       outFilePath,
 			shouldErr: false,
 		},
 		{
 			name:      "wrong output",
-			arg:       arg,
+			arg:       argFile,
 			out:       "/wrong-out",
 			shouldErr: true,
+		},
+		{
+			name:      "valid URL",
+			url:       flagURL,
+			shouldErr: false,
+		},
+		{
+			name:      "wrong output with url",
+			url:       flagURL,
+			out:       "/wrong-out",
+			shouldErr: true,
+		},
+		{
+			name:      "valid URL with output",
+			url:       flagURL,
+			out:       outFilePath,
+			shouldErr: false,
+		},
+		{
+			name:      "valid URL with scheme",
+			url:       flagURLwithScheme,
+			shouldErr: false,
+		},
+		{
+			name:      "valid URL with port",
+			url:       flagURLwithPort,
+			shouldErr: false,
+		},
+		{
+			name:      "valid URL with scheme and port",
+			url:       flagURLwithSchemePort,
+			shouldErr: false,
 		},
 	}
 
@@ -67,6 +104,9 @@ func TestInfo(t *testing.T) {
 			testArgs := []string{execName, info.CmdInfo}
 			if tC.out != "" {
 				testArgs = append(testArgs, "--out", tC.out)
+			}
+			if tC.url != "" {
+				testArgs = append(testArgs, "--url", tC.url)
 			}
 			if tC.arg != "" {
 				testArgs = append(testArgs, tC.arg)
