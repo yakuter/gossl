@@ -25,13 +25,17 @@ func TestInfo(t *testing.T) {
 	outFilePath := filepath.Join(tempDir, "test-file-*")
 
 	const (
-		argFile = "../../testdata/server-cert.pem"
-		argURL  = "https://www.google.com"
+		argFile               = "../../testdata/server-cert.pem"
+		flagURL               = "google.com"
+		flagURLwithScheme     = "https://google.com"
+		flagURLwithPort       = "google.com:443"
+		flagURLwithSchemePort = "https://google.com:443"
 	)
 
 	testCases := []struct {
 		name      string
 		arg       string
+		url       string
 		out       string
 		shouldErr bool
 	}{
@@ -63,19 +67,34 @@ func TestInfo(t *testing.T) {
 		},
 		{
 			name:      "valid URL",
-			arg:       argURL,
+			url:       flagURL,
 			shouldErr: false,
 		},
 		{
 			name:      "wrong output with url",
-			arg:       argURL,
+			url:       flagURL,
 			out:       "/wrong-out",
 			shouldErr: true,
 		},
 		{
 			name:      "valid URL with output",
-			arg:       argURL,
+			url:       flagURL,
 			out:       outFilePath,
+			shouldErr: false,
+		},
+		{
+			name:      "valid URL with scheme",
+			url:       flagURLwithScheme,
+			shouldErr: false,
+		},
+		{
+			name:      "valid URL with port",
+			url:       flagURLwithPort,
+			shouldErr: false,
+		},
+		{
+			name:      "valid URL with scheme and port",
+			url:       flagURLwithSchemePort,
 			shouldErr: false,
 		},
 	}
@@ -85,6 +104,9 @@ func TestInfo(t *testing.T) {
 			testArgs := []string{execName, info.CmdInfo}
 			if tC.out != "" {
 				testArgs = append(testArgs, "--out", tC.out)
+			}
+			if tC.url != "" {
+				testArgs = append(testArgs, "--url", tC.url)
 			}
 			if tC.arg != "" {
 				testArgs = append(testArgs, tC.arg)

@@ -65,7 +65,7 @@ A file path or a valid URL is used to get details of the certificate.
 
 ```bash
 gossl info cert.pem
-gossl info https://www.google.com
+gossl info --url google.com
 ```
 
 ### cert
