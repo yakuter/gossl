@@ -24,9 +24,7 @@ func TestInfo(t *testing.T) {
 	tempDir := t.TempDir()
 	outFilePath := filepath.Join(tempDir, "test-file-*")
 
-	var (
-		arg = "../../testdata/server-cert.pem"
-	)
+	arg := "../../testdata/server-cert.pem"
 
 	testCases := []struct {
 		name      string
@@ -59,6 +57,11 @@ func TestInfo(t *testing.T) {
 			arg:       arg,
 			out:       "/wrong-out",
 			shouldErr: true,
+		},
+		{
+			name:      "valid URL",
+			arg:       "https://www.google.com",
+			shouldErr: false,
 		},
 	}
 

@@ -61,9 +61,11 @@ gossl key --bits 2048 --out private.key --withpub
 
 ### info
 `info` displays information about x509 certificate. Thanks [grantae](https://github.com/grantae) for great [certinfo](https://github.com/grantae/certinfo) tool which is used here.
+A file path or a valid URL is used to get details of the certificate.
 
 ```bash
 gossl info cert.pem
+gossl info https://www.google.com
 ```
 
 ### cert
@@ -145,4 +147,3 @@ gossl ssh-copy --pubkey /home/user/.ssh/id_rsa.pub --password passw@rd123 remote
 2. Add cert template format read from yaml file
 3. Add certificate converter command like DER to PEM etc.
 4. Add test for CertFromFile function at utils package
-5. Send http request and display certificate info with info command
