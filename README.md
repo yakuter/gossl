@@ -144,6 +144,5 @@ gossl ssh-copy --pubkey /home/user/.ssh/id_rsa.pub --password passw@rd123 remote
 1. Add generate command for generating private key, root ca and x509 certificates in one command
 2. Add cert template format read from yaml file
 3. Add certificate converter command like DER to PEM etc.
-4. Add test for info command
-5. Add test for CertFromFile function at utils package
-6. Send http request and display certificate info with info command
+4. Add test for CertFromFile function at utils package
+5. Send http request and display certificate info with info command
