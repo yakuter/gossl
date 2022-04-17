@@ -27,7 +27,7 @@ func Command() *cli.Command {
 		Name:        CmdInfo,
 		HelpName:    CmdInfo,
 		Action:      Action,
-		ArgsUsage:   `[cert file path or URL ]`,
+		ArgsUsage:   `[cert file path]`,
 		Usage:       `displays information about certificate.`,
 		Description: `Displays information about x509 certificate.`,
 		Flags:       Flags(),
