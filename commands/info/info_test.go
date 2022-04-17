@@ -72,6 +72,12 @@ func TestInfo(t *testing.T) {
 			out:       "/wrong-out",
 			shouldErr: true,
 		},
+		{
+			name:      "valid URL with output",
+			arg:       argURL,
+			out:       outFilePath,
+			shouldErr: false,
+		},
 	}
 
 	for _, tC := range testCases {
