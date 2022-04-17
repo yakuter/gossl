@@ -2,8 +2,8 @@ package info
 
 import (
 	"errors"
-	"fmt"
 	"log"
+	"os"
 
 	"github.com/yakuter/gossl/pkg/utils"
 
@@ -13,6 +13,8 @@ import (
 
 const (
 	CmdInfo = "info"
+
+	flagOut = "out"
 )
 
 func Command() *cli.Command {
@@ -28,7 +30,14 @@ func Command() *cli.Command {
 }
 
 func Flags() []cli.Flag {
-	return []cli.Flag{}
+	return []cli.Flag{
+		&cli.StringFlag{
+			Name:        flagOut,
+			Usage:       "Output file name (optional)",
+			DefaultText: "eg, ./cert.pem",
+			Required:    false,
+		},
+	}
 }
 
 func Action(c *cli.Context) error {
@@ -38,11 +47,18 @@ func Action(c *cli.Context) error {
 		return err
 	}
 
+	// Set output
+	output := os.Stdout
+	outputFilePath := output.Name()
+	if c.IsSet(flagOut) {
+		outputFilePath = c.String(flagOut)
+	}
+
 	// Get certificate from file
 	certFilePath := c.Args().First()
 	cert, err := utils.CertFromFile(certFilePath)
 	if err != nil {
-		log.Printf("Failed to get cert from file %s CAs error: %v", certFilePath, err)
+		log.Printf("Failed to get cert from file %s error: %v", certFilePath, err)
 		return err
 	}
 
@@ -53,6 +69,10 @@ func Action(c *cli.Context) error {
 		return err
 	}
 
-	fmt.Println(result)
+	// Write x509 certificate to file
+	if err = os.WriteFile(outputFilePath, []byte(result), 0o600); err != nil {
+		log.Printf("Failed to write PEM to file %s error: %v", outputFilePath, err)
+		return err
+	}
 	return nil
 }
