@@ -24,7 +24,10 @@ func TestInfo(t *testing.T) {
 	tempDir := t.TempDir()
 	outFilePath := filepath.Join(tempDir, "test-file-*")
 
-	arg := "../../testdata/server-cert.pem"
+	const (
+		argFile = "../../testdata/server-cert.pem"
+		argURL  = "https://www.google.com"
+	)
 
 	testCases := []struct {
 		name      string
@@ -33,8 +36,8 @@ func TestInfo(t *testing.T) {
 		shouldErr bool
 	}{
 		{
-			name:      "valid cert",
-			arg:       arg,
+			name:      "valid cert file",
+			arg:       argFile,
 			shouldErr: false,
 		},
 		{
@@ -42,26 +45,32 @@ func TestInfo(t *testing.T) {
 			shouldErr: true,
 		},
 		{
-			name:      "wrong cert",
+			name:      "wrong cert file or invalid URL",
 			arg:       "wrong-arg",
 			shouldErr: true,
 		},
 		{
-			name:      "valid cert",
-			arg:       arg,
+			name:      "valid cert file with output",
+			arg:       argFile,
 			out:       outFilePath,
 			shouldErr: false,
 		},
 		{
 			name:      "wrong output",
-			arg:       arg,
+			arg:       argFile,
 			out:       "/wrong-out",
 			shouldErr: true,
 		},
 		{
 			name:      "valid URL",
-			arg:       "https://www.google.com",
+			arg:       argURL,
 			shouldErr: false,
+		},
+		{
+			name:      "wrong output with url",
+			arg:       argURL,
+			out:       "/wrong-out",
+			shouldErr: true,
 		},
 	}
 
