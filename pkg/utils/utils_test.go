@@ -107,3 +107,18 @@ func TestReadInputs(t *testing.T) {
 	answers, err = utils.ReadInputs(q, &stdin)
 	require.Error(t, err)
 }
+
+func TestCertFromFile(t *testing.T) {
+	// Load a valid certificate
+	const validCertPath = "../../testdata/server-cert.pem"
+	_, err := utils.CertFromFile(validCertPath)
+	require.NoError(t, err)
+
+	_, err = utils.CertFromFile("wrong-path")
+	require.Error(t, err)
+
+	// Fails decoding PEM
+	invalidFile, err := os.CreateTemp(t.TempDir(), "invalid-*.pem")
+	_, err = utils.CertFromFile(invalidFile.Name())
+	require.Error(t, err)
+}
