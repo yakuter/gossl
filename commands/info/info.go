@@ -80,11 +80,6 @@ func Action(c *cli.Context) error {
 
 		// Get certificate from file
 		path := c.Args().First()
-		if err != nil {
-			return err
-		}
-
-		// Read from file
 		cert, err = utils.CertFromFile(path)
 		if err != nil {
 			log.Printf("failed to get cert from file %q: %v", path, err)
@@ -142,5 +137,5 @@ func readX509FromDomain(uri string) (*x509.Certificate, error) {
 		return certs[0], nil
 	}
 
-	return nil, fmt.Errorf("no certificate returned from %q", u.String())
+	return nil, fmt.Errorf("no certificate returned from %q", uri)
 }

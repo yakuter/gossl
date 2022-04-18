@@ -49,7 +49,7 @@ func TestInfo(t *testing.T) {
 			shouldErr: true,
 		},
 		{
-			name:      "wrong cert file or invalid URL",
+			name:      "wrong cert file",
 			arg:       "wrong-arg",
 			shouldErr: true,
 		},
