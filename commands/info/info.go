@@ -18,8 +18,10 @@ import (
 const (
 	CmdInfo = "info"
 
-	flagOut = "out"
-	flagURL = "url"
+	flagOut  = "out"
+	flagURL  = "url"
+	flagCert = "cert"
+	flagCSR  = "csr"
 )
 
 func Command() *cli.Command {
@@ -48,10 +50,28 @@ func Flags() []cli.Flag {
 			DefaultText: "eg, google.com",
 			Required:    false,
 		},
+		&cli.StringFlag{
+			Name:        flagCert,
+			Usage:       "x509 Certificate to get details from (optional)",
+			DefaultText: "eg, server.crt",
+			Required:    false,
+		},
+		&cli.StringFlag{
+			Name:        flagCSR,
+			Usage:       "x509 Certificate Request (CSR) to get details from (optional)",
+			DefaultText: "eg, server.csr",
+			Required:    false,
+		},
 	}
 }
 
 func Action(c *cli.Context) error {
+	if !c.IsSet(flagURL) && !c.IsSet(flagCert) && !c.IsSet(flagCSR) {
+		err := errors.New("no flag provided")
+		log.Printf("Failed to get cert resource error: %v", err)
+		return err
+	}
+
 	// Set output
 	output := os.Stdout
 	outputFilePath := output.Name()
@@ -60,41 +80,60 @@ func Action(c *cli.Context) error {
 	}
 
 	var (
-		err  error
-		cert *x509.Certificate
+		err    error
+		result string
+		cert   *x509.Certificate
+		csr    *x509.CertificateRequest
 	)
 
 	if c.IsSet(flagURL) {
 		u := c.String(flagURL)
 		cert, err = readX509FromDomain(u)
 		if err != nil {
-			log.Printf("failed to get cert details from %q: %v", u, err)
-			return err
-		}
-	} else {
-		if c.Args().Len() == 0 {
-			err := errors.New("cert file argument is not found")
-			log.Printf("%v", err)
+			log.Printf("failed to get cert details from URL %q error: %v", u, err)
 			return err
 		}
 
-		// Get certificate from file
-		path := c.Args().First()
+		// Print the certificate
+		result, err = certinfo.CertificateText(cert)
+		if err != nil {
+			log.Printf("Failed to get cert info from URL error: %v", err)
+			return err
+		}
+	}
+
+	if c.IsSet(flagCert) {
+		path := c.String(flagCert)
 		cert, err = utils.CertFromFile(path)
 		if err != nil {
-			log.Printf("failed to get cert from file %q: %v", path, err)
+			log.Printf("failed to get cert from file %q error: %v", path, err)
+			return err
+		}
+
+		// Print the certificate
+		result, err = certinfo.CertificateText(cert)
+		if err != nil {
+			log.Printf("Failed to get cert info from cert file %q error: %v", path, err)
 			return err
 		}
 	}
 
-	// Print the certificate
-	result, err := certinfo.CertificateText(cert)
-	if err != nil {
-		log.Printf("Failed to get cert info from cert error: %v", err)
-		return err
+	if c.IsSet(flagCSR) {
+		path := c.String(flagCSR)
+		csr, err = utils.CSRFromFile(path)
+		if err != nil {
+			log.Printf("failed to get CSR from file %q: %v", path, err)
+			return err
+		}
+
+		// Print the certificate
+		result, err = certinfo.CertificateRequestText(csr)
+		if err != nil {
+			log.Printf("Failed to get CSR info from cert error: %v", err)
+			return err
+		}
 	}
 
-	// Write x509 certificate to file
 	if err = os.WriteFile(outputFilePath, []byte(result), 0o600); err != nil {
 		log.Printf("Failed to write PEM to file %s error: %v", outputFilePath, err)
 		return err

@@ -67,11 +67,11 @@ func TestPrivateKeyFromPEMFile(t *testing.T) {
 	require.NoError(t, err)
 
 	// Fail
-	keyFromFile, err := utils.PrivateKeyFromPEMFile("wrong-file")
+	keyFromFile, err := utils.PrivateKeyFromFile("wrong-file")
 	require.Error(t, err)
 
 	// Fail
-	keyFromFile, err = utils.PrivateKeyFromPEMFile(file.Name())
+	keyFromFile, err = utils.PrivateKeyFromFile(file.Name())
 	require.Error(t, err)
 
 	// Write test pem to file
@@ -80,7 +80,7 @@ func TestPrivateKeyFromPEMFile(t *testing.T) {
 	require.NoError(t, file.Close())
 
 	// Success
-	keyFromFile, err = utils.PrivateKeyFromPEMFile(file.Name())
+	keyFromFile, err = utils.PrivateKeyFromFile(file.Name())
 	require.NoError(t, err)
 	require.True(t, reflect.DeepEqual(privateKey, keyFromFile))
 }

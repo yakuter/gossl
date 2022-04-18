@@ -25,7 +25,8 @@ func TestInfo(t *testing.T) {
 	outFilePath := filepath.Join(tempDir, "test-file-*")
 
 	const (
-		argFile               = "../../testdata/server-cert.pem"
+		certFile              = "../../testdata/server-cert.pem"
+		csrFile               = "../../testdata/server-req.pem"
 		flagURL               = "google.com"
 		flagURLwithScheme     = "https://google.com"
 		flagURLwithPort       = "google.com:443"
@@ -34,14 +35,20 @@ func TestInfo(t *testing.T) {
 
 	testCases := []struct {
 		name      string
-		arg       string
+		cert      string
+		csr       string
 		url       string
 		out       string
 		shouldErr bool
 	}{
 		{
 			name:      "valid cert file",
-			arg:       argFile,
+			cert:      certFile,
+			shouldErr: false,
+		},
+		{
+			name:      "valid csr file",
+			csr:       csrFile,
 			shouldErr: false,
 		},
 		{
@@ -50,18 +57,45 @@ func TestInfo(t *testing.T) {
 		},
 		{
 			name:      "wrong cert file",
-			arg:       "wrong-arg",
+			cert:      "wrong-arg",
+			shouldErr: true,
+		},
+		{
+			name:      "wrong cert file",
+			cert:      csrFile,
+			shouldErr: true,
+		},
+		{
+			name:      "wrong csr file",
+			csr:       "wrong-arg",
+			shouldErr: true,
+		},
+		{
+			name:      "wrong csr file",
+			csr:       certFile,
 			shouldErr: true,
 		},
 		{
 			name:      "valid cert file with output",
-			arg:       argFile,
+			cert:      certFile,
 			out:       outFilePath,
 			shouldErr: false,
 		},
 		{
-			name:      "wrong output",
-			arg:       argFile,
+			name:      "valid csr file with output",
+			csr:       csrFile,
+			out:       outFilePath,
+			shouldErr: false,
+		},
+		{
+			name:      "wrong output with cert",
+			cert:      certFile,
+			out:       "/wrong-out",
+			shouldErr: true,
+		},
+		{
+			name:      "wrong output with csr",
+			csr:       csrFile,
 			out:       "/wrong-out",
 			shouldErr: true,
 		},
@@ -108,8 +142,11 @@ func TestInfo(t *testing.T) {
 			if tC.url != "" {
 				testArgs = append(testArgs, "--url", tC.url)
 			}
-			if tC.arg != "" {
-				testArgs = append(testArgs, tC.arg)
+			if tC.cert != "" {
+				testArgs = append(testArgs, "--cert", tC.cert)
+			}
+			if tC.csr != "" {
+				testArgs = append(testArgs, "--csr", tC.csr)
 			}
 
 			err = app.Run(testArgs)

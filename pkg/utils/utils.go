@@ -90,18 +90,14 @@ func CSRToPEM(cert []byte) []byte {
 	return pem.EncodeToMemory(&block)
 }
 
-func PrivateKeyFromPEMFile(keyFilePath string) (*rsa.PrivateKey, error) {
-	keyFileContent, err := os.ReadFile(keyFilePath)
+func PrivateKeyFromFile(path string) (*rsa.PrivateKey, error) {
+	block, err := readPEMfromFile(path)
 	if err != nil {
+		log.Printf("Failed to read PEM from file %s error: %v", path, err)
 		return nil, err
 	}
 
-	keyBlock, _ := pem.Decode(keyFileContent)
-	if keyBlock == nil {
-		return nil, fmt.Errorf("invalid key file %s", keyFilePath)
-	}
-
-	key, err := x509.ParsePKCS1PrivateKey(keyBlock.Bytes)
+	key, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {
 		return nil, err
 	}
@@ -109,26 +105,34 @@ func PrivateKeyFromPEMFile(keyFilePath string) (*rsa.PrivateKey, error) {
 	return key, nil
 }
 
-func CertFromFile(certFilePath string) (*x509.Certificate, error) {
-	// Read cert file
-	certFileBytes, err := os.ReadFile(certFilePath)
+func CSRFromFile(path string) (*x509.CertificateRequest, error) {
+	block, err := readPEMfromFile(path)
 	if err != nil {
-		log.Printf("Failed to read cert file %q error: %v", certFilePath, err)
+		log.Printf("Failed to read PEM from file %s error: %v", path, err)
 		return nil, err
 	}
 
-	// Decode PEM encoded cert file
-	block, _ := pem.Decode(certFileBytes)
-	if block == nil {
-		err = errors.New("block is nil")
-		log.Printf("Failed to decode PEM encoded cert file %q error: %v", certFilePath, err)
+	// Parse x509 certificate
+	cert, err := x509.ParseCertificateRequest(block.Bytes)
+	if err != nil {
+		log.Printf("Failed to parse x509 certificate request from CSR file %q error: %v", path, err)
+		return nil, err
+	}
+
+	return cert, nil
+}
+
+func CertFromFile(path string) (*x509.Certificate, error) {
+	block, err := readPEMfromFile(path)
+	if err != nil {
+		log.Printf("Failed to read PEM from file %s error: %v", path, err)
 		return nil, err
 	}
 
 	// Parse x509 certificate
 	cert, err := x509.ParseCertificate(block.Bytes)
 	if err != nil {
-		log.Printf("Failed to parse x509 certificate from cert file %q error: %v", certFilePath, err)
+		log.Printf("Failed to parse x509 certificate from cert file %q error: %v", path, err)
 		return nil, err
 	}
 
@@ -151,4 +155,23 @@ func ReadInputs(questions []string, reader io.Reader) ([]string, error) {
 	}
 
 	return answers, nil
+}
+
+func readPEMfromFile(path string) (*pem.Block, error) {
+	// Read cert file
+	certFileBytes, err := os.ReadFile(path)
+	if err != nil {
+		log.Printf("Failed to read cert file %q error: %v", path, err)
+		return nil, err
+	}
+
+	// Decode PEM encoded cert file
+	block, _ := pem.Decode(certFileBytes)
+	if block == nil {
+		err = errors.New("block is nil")
+		log.Printf("Failed to decode PEM encoded cert file %q error: %v", path, err)
+		return nil, err
+	}
+
+	return block, nil
 }
