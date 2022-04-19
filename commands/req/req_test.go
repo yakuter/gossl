@@ -14,7 +14,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func TestCert(t *testing.T) {
+func TestReq(t *testing.T) {
 	execName, err := os.Executable()
 	require.NoError(t, err)
 
@@ -35,7 +35,6 @@ func TestCert(t *testing.T) {
 		days      int
 		serial    int
 		isCA      bool
-		isCSR     bool
 		shouldErr bool
 	}{
 		{
@@ -49,16 +48,6 @@ func TestCert(t *testing.T) {
 			shouldErr: false,
 		},
 		{
-			name:      "valid normal cert",
-			fqdn:      "localhost",
-			key:       testKey,
-			out:       outFile,
-			days:      365,
-			serial:    123456,
-			isCA:      false,
-			shouldErr: false,
-		},
-		{
 			name:      "valid CSR",
 			fqdn:      "localhost",
 			email:     "john@doe.com",
@@ -66,7 +55,7 @@ func TestCert(t *testing.T) {
 			out:       outFile,
 			days:      365,
 			serial:    123456,
-			isCSR:     true,
+			isCA:      false,
 			shouldErr: false,
 		},
 		{
@@ -77,7 +66,7 @@ func TestCert(t *testing.T) {
 			out:       outFile,
 			days:      365,
 			serial:    123456,
-			isCSR:     true,
+			isCA:      false,
 			shouldErr: true,
 		},
 		{
@@ -122,9 +111,6 @@ func TestCert(t *testing.T) {
 			}
 			if tC.isCA {
 				testArgs = append(testArgs, "--isCA")
-			}
-			if tC.isCSR {
-				testArgs = append(testArgs, "--isCSR")
 			}
 
 			var stdin bytes.Buffer
